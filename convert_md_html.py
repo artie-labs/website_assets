@@ -20,13 +20,11 @@ def convert_markdown_to_html(input_file):
 
     # Add anchor links to headers
     for header in soup.find_all(re.compile(r'^h[1-6]$')):
-        print('header.text', header.text)
         header_id = header.text.lower().strip()
         header_id = header_id.replace(' ', '--')
         for character_to_remove in ['.', '(', ')',]:
             header_id = header_id.replace(character_to_remove, '')
         header['id'] = header_id
-        print('header_id', header_id)
         anchor_tag = soup.new_tag('a', href=f'#{header_id}', **{'class': 'anchor-link'})
         header.insert_before(anchor_tag)
         anchor_tag.append(header)
