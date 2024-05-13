@@ -8,6 +8,8 @@ import markdown
 from bs4 import BeautifulSoup
 import re
 
+github_repo = 'website_assets'
+
 
 def convert_markdown_to_html(input_file):
     with open(input_file, 'r', encoding='utf-8') as file:
@@ -22,7 +24,7 @@ def convert_markdown_to_html(input_file):
     for header in soup.find_all(re.compile(r'^h[1-6]$')):
         header_id = header.text.lower().strip()
         header_id = header_id.replace(' ', '--')
-        for character_to_remove in ['.', '(', ')',]:
+        for character_to_remove in ['.', '(', ')', ]:
             header_id = header_id.replace(character_to_remove, '')
         header['id'] = header_id
         anchor_tag = soup.new_tag('a', href=f'#{header_id}', **{'class': 'anchor-link'})
@@ -30,7 +32,17 @@ def convert_markdown_to_html(input_file):
         anchor_tag.append(header)
 
     # Update all the images
+    # This converts rel and abs path into rel path
     directory = os.path.dirname(input_file)
+    directory_parts = directory.split('/')
+    index = 0
+    for directory_part in directory_parts:
+        # GitHub repo
+        if directory_part == github_repo:
+            directory = '/'.join(directory_parts[index + 1:])
+            break
+        index += 1
+
     for img in soup.find_all('img'):
         original_src = img['src']
         # Following: https://gist.github.com/jcubic/a8b8c979d200ffde13cc08505f7a6436
@@ -45,6 +57,7 @@ def write_html_to_file(html_content, output_file):
 
 
 def convert_markdown_to_html_with_anchors(input_file, output_file):
+    print('input_file', input_file)
     html_content = convert_markdown_to_html(input_file)
     write_html_to_file(html_content, output_file)
 
