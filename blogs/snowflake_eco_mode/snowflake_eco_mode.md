@@ -22,6 +22,7 @@ In our example with Acme Bread, the `support_ticket` table is set to off-peak ab
 To get started, define peak and off-peak hours along with flush (sync frequency) preferences on our dashboard.
 
 ![img.png](setting_up_eco_mode.png)
+
 <small>In this example, we are syncing every hour during off-peak hours.</small>
 
 As a quick refresher, Artie flushes data based on three variables.
