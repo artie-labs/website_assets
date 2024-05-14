@@ -1,0 +1,92 @@
+<p>
+ <strong>
+  Snowflake Eco Mode is an advanced setting that allows customers to minimize time and maximize resource utilization of their Snowflake virtual warehouse.
+ </strong>
+</p>
+<p>
+ We built Snowflake Eco Mode for customers that may only need faster syncs during business hours.
+</p>
+<p>
+ Take Company Acme Bread as an example. They offer customer support from Monday to Friday, 8AM to 6PM. For the
+ <code>
+  support_ticket
+ </code>
+ table, they could set the following rules:
+</p>
+<ul>
+ <li>
+  During peak hours, sync every 10 seconds.
+ </li>
+ <li>
+  Off-peak hours, sync every 6 hours.
+ </li>
+</ul>
+<a class="anchor-link" href="#how--snowflake--eco--mode--helps--you--save--money" id="how--snowflake--eco--mode--helps--you--save--money">
+ <h2>
+  How Snowflake Eco Mode helps you save money
+ </h2>
+</a>
+<p>
+ Snowflake charges customers off of compute and storage. Customers provision a Snowflake virtual warehouse to process incoming queries and size their virtual warehouses according to workload. 
+From our discussions with customers, typically 70-90% of customers' Snowflake bill comes from compute.
+</p>
+<p>
+ Note that virtual warehouses are billed based on time utilization (down to the second), regardless of usage capacity. 
+Which means running at 100% capacity for 1 minute costs the same as running at 1% capacity for 1 minute. By defining peak and off-peak times, customers can maximize resource utilization.
+</p>
+<p>
+ In our example with Acme Bread, the
+ <code>
+  support_ticket
+ </code>
+ table is set to off-peak about 70% of the time
+ <strong>
+  which results in Snowflake virtual warehouse cost savings of 65-70%.
+ </strong>
+</p>
+<a class="anchor-link" href="#how--does--snowflake--eco--mode--work?" id="how--does--snowflake--eco--mode--work?">
+ <h2>
+  How does Snowflake Eco Mode work?
+ </h2>
+</a>
+<p>
+ To get started, define peak and off-peak hours along with flush (sync frequency) preferences on our dashboard.
+</p>
+<p>
+ <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/snowflake_eco_mode/setting_up_eco_mode.png"/>
+ <small>
+  In this example, we are syncing every hour during off-peak hours.
+ </small>
+</p>
+<p>
+ As a quick refresher, Artie flushes data based on three variables.
+1. Time 
+2. Bytes processed 
+3. Rows processed
+</p>
+<p>
+ Whichever one happens first will trigger a flush cycle.
+</p>
+<a class="anchor-link" href="#zero--impact--to--your--database" id="zero--impact--to--your--database">
+ <h2>
+  Zero impact to your database
+ </h2>
+</a>
+<blockquote>
+ <p>
+  Will syncing less frequently impact database performance or risk replication slot overflow?
+ </p>
+</blockquote>
+<p>
+ No, it does not! We do not rely on a database's oplog as our processing buffer, so there is no accumulation of CDC logs. 
+Whenever there are new events in your oplog, we automatically publish that into our Kafka cluster as an external buffer. 
+As such,
+ <strong>
+  your oplog never builds up
+ </strong>
+ . We discuss this in-depth in our blog on
+ <a href="https://www.artie.com/blogs/not-all-cdc-pipelines-are-created-equal#using-kafka-as-an-external-buffer">
+  our design principles
+ </a>
+ .
+</p>
