@@ -54,6 +54,8 @@ Each of them has its obvious drawbacks:
 3. Third-party tools are expensive, limited in their capabilities, not set up for scale and can be difficult to use.
 
 # Introducing Artie
+![img.png](artie_transfer.png)
+
 As technologists, we believe that approaching zero replication lag between OLTP and OLAP databases should be the norm and widely accessible.
 
 Artie enables OLTP data to be streamed continuously to the data warehouse and reduces replication lag from hours to days down to seconds. This will allow companies to unlock new use cases and empower their teams to make better decisions.
