@@ -1,0 +1,246 @@
+<p>
+ Being an avid data warehouse user, I was often frustrated by the limitations around data latency between the data warehouse and the production data that sits within transactional databases.
+</p>
+<p>
+ Depending on where I worked, the data lag varied from multiple hours to days, with the lag exacerbated by the volume of data.
+</p>
+<a class="anchor-link" href="#why--do--you--need--real-time--data?" id="why--do--you--need--real-time--data?">
+ <h1>
+  Why do you need real-time data?
+ </h1>
+</a>
+<p>
+ Given that data warehouse is a platform, there are may use cases that can be enabled or empowered by having a shorter data lag. I'll go over examples below.
+</p>
+<a class="anchor-link" href="#ops--heavy--companies" id="ops--heavy--companies">
+ <h2>
+  Ops heavy companies
+ </h2>
+</a>
+<p>
+ Operations heavy companies typically have constantly changing business processes and ops people often leverage a variety of no-code tools such as Zapier, Typeform, Retool and others to keep up with process changes.
+</p>
+<p>
+ These tools can stack on top of each other and reference data in the data warehouse. The efficacy of the solution created from the no-code tools are then partially impacted by the data replication lag.
+</p>
+<a class="anchor-link" href="#lifecycle--and--paid--marketing" id="lifecycle--and--paid--marketing">
+ <h2>
+  Lifecycle and Paid Marketing
+ </h2>
+</a>
+<p>
+ Within lifecycle marketing, it is common to purchase
+ <a href="https://en.wikipedia.org/wiki/Marketing_automation">
+  marketing automation tools
+ </a>
+ such as Iterable, Braze, Klaviyo, etc.
+Each of these tools have their own version of what a user model and events should look like, such that teams can create templates such as:
+ <code>
+  Hello {{first_name}}
+ </code>
+ !
+</p>
+<p>
+ Examples of additional user attributes that may be sent:
+-
+ <strong>
+  Paid marketing.
+ </strong>
+ Once the customer requests a ride, we'd like to send as many customer traits as possible to destinations like Google and Facebook so their algorithm can find more look-alikes.
+-
+ <strong>
+  Nurture campaigns.
+ </strong>
+ When a customer signs up on our website, we'd like to put them in a drip campaign that welcomes and onboards the customer. We'd like to reference dynamic fields like product iterations.
+    - Did they do anything more than just sign up?
+      -Did they play around with our platform?
+</p>
+<a class="anchor-link" href="#critical--tables--that--everyone--depends--on" id="critical--tables--that--everyone--depends--on">
+ <h2>
+  Critical tables that everyone depends on
+ </h2>
+</a>
+<p>
+ Every company has a subset of tables that are critical to the business. These tables are typically used by multiple teams and are the source of truth for the company.
+</p>
+<p>
+ Having them replicated to data warehouses effortlessly and in real-time is a value multiplier.
+</p>
+<table class="page-table">
+ <thead>
+  <tr>
+   <th>
+    Industry
+   </th>
+   <th>
+    Critical Tables
+   </th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td>
+    E-commerce
+   </td>
+   <td>
+    Orders, Customers, Products
+   </td>
+  </tr>
+  <tr>
+   <td>
+    SaaS
+   </td>
+   <td>
+    Users, Accounts, Subscriptions
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Marketplaces
+   </td>
+   <td>
+    Orders, Customers, Products
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Real Estate
+   </td>
+   <td>
+    Inventory, Offers, Customers
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a class="anchor-link" href="#so--why--hasn't--this--been--done--before?" id="so--why--hasn't--this--been--done--before?">
+ <h1>
+  So why hasn't this been done before?
+ </h1>
+</a>
+<p>
+ As many have chimed in
+ <a href="https://www.reddit.com/r/dataengineering/comments/1393kdj/why_would_you_ever_not_use_cdc_for_elt/">
+  here,
+ </a>
+ it is not that real-time replication is not useful. It is extremely valuable, but it's often far too complex for any particular engineering team to dedicate resources to set up.
+</p>
+<p>
+ Also, it's really hard to maintain and streaming pipeline errors are extremely unforgiving. A typical data engineering team also has to maintain many other pipelines, so it's difficult to justify this level of investment.
+</p>
+<a class="anchor-link" href="#so--how--are--companies--solving--this--problem--today?" id="so--how--are--companies--solving--this--problem--today?">
+ <h2>
+  So how are companies solving this problem today?
+ </h2>
+</a>
+<p>
+ Typically, companies are solving this problem today by doing the following:
+</p>
+<ol>
+ <li>
+  Performing periodic data dumps by taking a database snapshot, sanitizing the data, and then uploading it to the data warehouse.
+ </li>
+ <li>
+  Leveraging incremental syncing such as
+  <code>
+   SELECT * FROM table WHERE updated_at > last_synced_at
+  </code>
+  and syncing only the deltas.
+ </li>
+ <li>
+  Using third-party SaaS tools like Fivetran, Stitch, and others to manage the pipeline.
+ </li>
+</ol>
+<p>
+ Each of them has its obvious drawbacks:
+1. Data dumps are extremely resource intensive and can take hours to complete.
+2. Incremental syncing is error-prone, inability to record deletes and can also be slow.
+3. Third-party tools are expensive, limited in their capabilities, not set up for scale and can be difficult to use.
+</p>
+<a class="anchor-link" href="#introducing--artie" id="introducing--artie">
+ <h1>
+  Introducing Artie
+ </h1>
+</a>
+<p>
+ As technologists, we believe that approaching zero replication lag between OLTP and OLAP databases should be the norm and widely accessible.
+</p>
+<p>
+ Artie enables OLTP data to be streamed continuously to the data warehouse and reduces replication lag from hours to days down to seconds. This will allow companies to unlock new use cases and empower their teams to make better decisions.
+</p>
+<p>
+ This is how Artie works under the hood:
+</p>
+<ul>
+ <li>
+  OLTP logs are consumed by Debezium and Artie Reader, which publishes the messages to Kafka.
+ </li>
+ <li>
+  Each table has its own Kafka topic, partition keys are the primary key(s) of the table.
+ </li>
+ <li>
+  Artie Transfer reads from Kafka topics, detects schema changes, and writes to your destination. Schema changes are merged automatically (read
+  <a href="https://www.artie.com/blogs/not-all-cdc-pipelines-are-created-equal#4-minimizing-data-indigestion">
+   our design principles
+  </a>
+  on schema support for more detail).
+ </li>
+</ul>
+<p>
+ To support this workload, Artie Transfer has the following features built in:
+</p>
+<ol>
+ <li>
+  <strong>
+   Automatic retries and idempotency
+  </strong>
+  . Artie will only commit the Kafka offset when the data has been successfully written to the destination. If there are any processing errors, it will hard fail.
+ </li>
+ <li>
+  <strong>
+   Automatic table creation
+  </strong>
+  . Artie will automatically create the table in the designated database if it does not exist.
+ </li>
+ <li>
+  <strong>
+   Error Reporting
+  </strong>
+  . Provide your Sentry API key and errors will be reported to your Sentry project.
+ </li>
+ <li>
+  <strong>
+   Schema Evolution
+  </strong>
+  . Artie detects column changes and applies any necessary DDLs to your destination tables.
+ </li>
+ <li>
+  <strong>
+   Scalability
+  </strong>
+  . Our architecture can handle 1GB or 100+ TB of data.
+ </li>
+ <li>
+  <strong>
+   Sub-minute latency
+  </strong>
+  . Artie is continuously draining your Kafka topic. You do not need to set a scheduler.
+ </li>
+ <li>
+  <strong>
+   <a href="https://docs.artie.com/telemetry/overview">
+    Telemetry
+   </a>
+  </strong>
+  . Artie is integrated with Datadog. All processing telemetry such as how many messages are processed and flush time are all available.
+ </li>
+</ol>
+<a class="anchor-link" href="#making--this--easy--for--teams--to--onboard" id="making--this--easy--for--teams--to--onboard">
+ <h2>
+  Making this easy for teams to onboard
+ </h2>
+</a>
+<p>
+ As we mentioned before, a big reason for low adoption of CDC replication is that it’s complex and requires a ton of engineering investment.
+We've worked tirelessly on making the onboarding experience seamless and intuitive.
+Simply enter your source details, highlight the tables you want to sync, enter your destination details, and we will spin up all the infrastructure and handle backfills. We built Artie so teams can set up CDC pipelines in minutes.
+</p>

@@ -20,6 +20,10 @@ def convert_markdown_to_html(input_file):
 
     soup = BeautifulSoup(html_content, 'html.parser')
 
+    # Add CSS class to table
+    for table in soup.find_all('table'):
+        table['class'] = 'page-table'
+
     # Add anchor links to headers
     for header in soup.find_all(re.compile(r'^h[1-6]$')):
         anchor_link_id = header.text.lower().strip()
@@ -56,7 +60,6 @@ def write_html_to_file(html_content, output_file):
 
 
 def convert_markdown_to_html_with_anchors(input_file, output_file):
-    print('input_file', input_file)
     html_content = convert_markdown_to_html(input_file)
     write_html_to_file(html_content, output_file)
 
