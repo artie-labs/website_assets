@@ -4,30 +4,33 @@
 <p>
  Depending on where I worked, the data lag varied from multiple hours to days, with the lag exacerbated by the volume of data.
 </p>
-<a class="anchor-link" href="#why--do--you--need--real-time--data?" id="why--do--you--need--real-time--data?">
- <h1>
-  Why do you need real-time data?
- </h1>
-</a>
+<h1>
+ <a aria-hidden="true" class="anchor-link" href="#why-do-you-need-real-time-data" id="why-do-you-need-real-time-data" title="Permalink">
+  #
+ </a>
+ Why do you need real-time data?
+</h1>
 <p>
  Given that data warehouse is a platform, there are may use cases that can be enabled or empowered by having a shorter data lag. I'll go over examples below.
 </p>
-<a class="anchor-link" href="#ops--heavy--companies" id="ops--heavy--companies">
- <h2>
-  Ops heavy companies
- </h2>
-</a>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#ops-heavy-companies" id="ops-heavy-companies" title="Permalink">
+  #
+ </a>
+ Ops heavy companies
+</h2>
 <p>
  Operations heavy companies typically have constantly changing business processes and ops people often leverage a variety of no-code tools such as Zapier, Typeform, Retool and others to keep up with process changes.
 </p>
 <p>
  These tools can stack on top of each other and reference data in the data warehouse. The efficacy of the solution created from the no-code tools are then partially impacted by the data replication lag.
 </p>
-<a class="anchor-link" href="#lifecycle--and--paid--marketing" id="lifecycle--and--paid--marketing">
- <h2>
-  Lifecycle and Paid Marketing
- </h2>
-</a>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#lifecycle-and-paid-marketing" id="lifecycle-and-paid-marketing" title="Permalink">
+  #
+ </a>
+ Lifecycle and Paid Marketing
+</h2>
 <p>
  Within lifecycle marketing, it is common to purchase
  <a href="https://en.wikipedia.org/wiki/Marketing_automation">
@@ -55,11 +58,12 @@ Each of these tools have their own version of what a user model and events shoul
     - Did they do anything more than just sign up?
       -Did they play around with our platform?
 </p>
-<a class="anchor-link" href="#critical--tables--that--everyone--depends--on" id="critical--tables--that--everyone--depends--on">
- <h2>
-  Critical tables that everyone depends on
- </h2>
-</a>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#critical-tables-that-everyone-depends-on" id="critical-tables-that-everyone-depends-on" title="Permalink">
+  #
+ </a>
+ Critical tables that everyone depends on
+</h2>
 <p>
  Every company has a subset of tables that are critical to the business. These tables are typically used by multiple teams and are the source of truth for the company.
 </p>
@@ -112,11 +116,12 @@ Each of these tools have their own version of what a user model and events shoul
   </tr>
  </tbody>
 </table>
-<a class="anchor-link" href="#so--why--hasn't--this--been--done--before?" id="so--why--hasn't--this--been--done--before?">
- <h1>
-  So why hasn't this been done before?
- </h1>
-</a>
+<h1>
+ <a aria-hidden="true" class="anchor-link" href="#so-why-hasn't-this-been-done-before" id="so-why-hasn't-this-been-done-before" title="Permalink">
+  #
+ </a>
+ So why hasn't this been done before?
+</h1>
 <p>
  As many have chimed in
  <a href="https://www.reddit.com/r/dataengineering/comments/1393kdj/why_would_you_ever_not_use_cdc_for_elt/">
@@ -127,11 +132,12 @@ Each of these tools have their own version of what a user model and events shoul
 <p>
  Also, it's really hard to maintain and streaming pipeline errors are extremely unforgiving. A typical data engineering team also has to maintain many other pipelines, so it's difficult to justify this level of investment.
 </p>
-<a class="anchor-link" href="#so--how--are--companies--solving--this--problem--today?" id="so--how--are--companies--solving--this--problem--today?">
- <h2>
-  So how are companies solving this problem today?
- </h2>
-</a>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#so-how-are-companies-solving-this-problem-today" id="so-how-are-companies-solving-this-problem-today" title="Permalink">
+  #
+ </a>
+ So how are companies solving this problem today?
+</h2>
 <p>
  Typically, companies are solving this problem today by doing the following:
 </p>
@@ -156,11 +162,12 @@ Each of these tools have their own version of what a user model and events shoul
 2. Incremental syncing is error-prone, inability to record deletes and can also be slow.
 3. Third-party tools are expensive, limited in their capabilities, not set up for scale and can be difficult to use.
 </p>
-<a class="anchor-link" href="#introducing--artie" id="introducing--artie">
- <h1>
-  Introducing Artie
- </h1>
-</a>
+<h1>
+ <a aria-hidden="true" class="anchor-link" href="#introducing-artie" id="introducing-artie" title="Permalink">
+  #
+ </a>
+ Introducing Artie
+</h1>
 <p>
  <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/introducing_artie_transfer/artie_transfer.png"/>
 </p>
@@ -237,11 +244,12 @@ Each of these tools have their own version of what a user model and events shoul
   . Artie is integrated with Datadog. All processing telemetry such as how many messages are processed and flush time are all available.
  </li>
 </ol>
-<a class="anchor-link" href="#making--this--easy--for--teams--to--onboard" id="making--this--easy--for--teams--to--onboard">
- <h2>
-  Making this easy for teams to onboard
- </h2>
-</a>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#making-this-easy-for-teams-to-onboard" id="making-this-easy-for-teams-to-onboard" title="Permalink">
+  #
+ </a>
+ Making this easy for teams to onboard
+</h2>
 <p>
  As we mentioned before, a big reason for low adoption of CDC replication is that it’s complex and requires a ton of engineering investment.
 We've worked tirelessly on making the onboarding experience seamless and intuitive.
