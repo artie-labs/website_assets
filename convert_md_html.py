@@ -24,23 +24,27 @@ def convert_markdown_to_html(input_file):
     for table in soup.find_all('table'):
         table['class'] = 'page-table'
 
-    # Add anchor links to headers
-    for header in soup.find_all(re.compile(r'^h[1-6]$')):
+    # Add anchor links to h1, h2, h3.
+    for header in soup.find_all(re.compile(r'^h[1-3]$')):
         anchor_link_id = header.text.lower().strip()
-        anchor_link_id = anchor_link_id.replace(' ', '--')
-        for character_to_remove in ['.', '(', ')', ]:
+        anchor_link_id = anchor_link_id.replace(' ', '-')
+        for character_to_remove in ['.', '(', ')', '?']:
             anchor_link_id = anchor_link_id.replace(character_to_remove, '')
-        anchor_tag = soup.new_tag('a', id=anchor_link_id, href=f'#{anchor_link_id}', **{'class': 'anchor-link'})
-        header.insert_before(anchor_tag)
-        anchor_tag.append(header)
+        anchor_tag = soup.new_tag('a',
+                                  id=anchor_link_id,
+                                  href=f'#{anchor_link_id}',
+                                  title='Permalink',
+                                  **{'class': 'anchor-link', 'aria-hidden': 'true'},
+                                  )
+        anchor_tag.string = '#'  # This will be the text for the anchor link
+        header.insert(0, anchor_tag)  # Insert the anchor tag at the beginning of the header
 
-    # Update all the images
+# Update all the images
     # This converts rel and abs path into rel path
     directory = os.path.dirname(input_file)
     directory_parts = directory.split('/')
     index = 0
     for directory_part in directory_parts:
-        # GitHub repo
         if directory_part == github_repo:
             directory = '/'.join(directory_parts[index + 1:])
             break
