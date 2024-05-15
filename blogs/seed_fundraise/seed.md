@@ -1,4 +1,4 @@
-![img.png](founders.png)
+![img.png](founders.webp)
 <div align="center"><small>Founders Robin Tang (left) and Jacqueline Cheong (right)</small></div>
 
 We are excited to announce that we have raised a $3.3M Seed round led by Exponent Founders Capital with participation from General Catalyst, Y Combinator, and many angel investors including Benn Stancil, Lenny Rachitsky, and Arash Ferdowsi.
