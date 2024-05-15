@@ -1,0 +1,37 @@
+![img.png](founders.png)
+<div align="center"><small>Founders Robin Tang (left) and Jacqueline Cheong (right)</small></div>
+
+We are excited to announce that we have raised a $3.3M Seed round led by Exponent Founders Capital with participation from General Catalyst, Y Combinator, and many angel investors including Benn Stancil, Lenny Rachitsky, and Arash Ferdowsi.
+
+In early 2023, Robin Tang and I launched Artie with a vision to revolutionize how companies transfer data. 
+Our mission is to make database replication real-time, reliable, and cost effective. Robin brings a wealth of experience, having previously scaled infrastructure at Opendoor, Zendesk, and several early stage startups. 
+My background as an investor in public software companies complements his expertise, equipping us with a unique blend of technical and market insights.
+
+Artie syncs databases and data warehouses in real-time and in a reliable way. We created Artie because of a critical industry gap: the majority of companies are still utilizing batched ETL (extract, transform, load) processes to sync data. 
+Traditional batch ETLs not only introduce data lag in the data warehouse, hindering real-time analytics and operational use cases, but also result in data consistency and scalability issues.
+
+Artie is unique in its use of change data capture (CDC) and streaming technology to sync data, along with the ability to automatically handle schema evolution in-flight. 
+This approach ensures high data integrity while dramatically reducing latency to seconds. It is also more cost-effective by eliminating the need to process large batches of data. 
+Our solution empowers customers to operationalize their data warehouse and generate more timely, impactful insights.
+
+We were lucky to work with Substack, a leading subscription network, as our first customer. Substack previously used batched ETLs to move production data from their databases into Snowflake. 
+These batches would transfer data every few hours or even overnight. This delayed their data analysts’ ability to analyze experiment data and initiate new workflows, which lowered overall organizational productivity. 
+After implementing Artie, data lag was slashed dramatically to a mere 10-15 seconds. Substack’s A/B testing framework now measures much faster and data integrity also improved. 
+The result is a tangible acceleration in decision-making processes across the entire company.
+
+One common misconception about real-time streaming is its presumed higher cost compared to batch processing. 
+Our experience with customers tells a different story: not only do they benefit from real-time data, but they often also see a reduction in total cost of ownership. 
+This is particularly true for companies with large volumes of data. 
+While not immediately intuitive, processing smaller amounts of data continuously using Snowflake’s virtual data warehouse requires less computational power than ingesting bulk data every 1-2 hours. 
+As such, customers often report a noticeable reduction in Snowflake costs after switching to Artie.
+
+Who benefits from real-time data? A wide range of industries. Fintechs, for instance, rely on it for risk analysis and transaction monitoring. 
+Ecommerce companies use real-time data to monitor inventory levels, optimize warehouse logistics, and iterate on experiments. 
+For advertising agencies, the use of real-time marketing analytics enhances campaign effectiveness and the ability to personalize outreach. 
+Furthermore, companies employing AI models for incremental or online machine learning depend on access to the latest production data. 
+The importance of real-time data escalates even more when companies provide analytical dashboards to their customers. 
+While internal BI teams might manage with some data delay, expecting customers to endure even brief lags in data is increasingly seen as unacceptable in today's fast-paced environment.
+
+We’ve achieved remarkable growth. Within just six months we scaled from processing zero to over 30 billion rows of data. 
+We are now serving over 10 enterprise customers and have experienced significant revenue growth of mid double digits month-over-month in the past few months. 
+With the infusion of new funding, we plan to expand the team to support our pipeline of high-growth and innovative companies. To experience how real-time data can elevate your competitive edge, [contact us](https://www.artie.com/contact) to discuss your use case.
