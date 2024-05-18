@@ -1,0 +1,179 @@
+<p>
+ Configuring Redshift can be very confusing. There are hundreds of knobs that customers can tune within Redshift, which unfortunately means that teams are often stuck with low performing Redshift clusters because it wasn't configured correctly. This guide helps highlight five of the highest leverage features that can vastly improve performance and cost.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#upgrade-to-ra3-nodes-if-you-are-still-on-ds2" id="upgrade-to-ra3-nodes-if-you-are-still-on-ds2" title="Permalink">
+  #
+ </a>
+ Upgrade to RA3 nodes if you are still on DS2
+</h2>
+<p>
+ DS2 is short for Dense Storage nodes. DS2 nodes are designed for heavy analytic workloads that require large amounts of storage, and are optimized to provide cost-effective storage for large amounts of data that have relatively moderate computational requirements.
+</p>
+<p>
+ RA3 is a newer generation and more performant node that Redshift offers that was designed with the ability to scale compute and storage independently. Storage is backed by S3 and is not tied to the node itself, which allows compute and storage to be scaled independently. Moreover, RA3 can automatically manage storage tiers and cache hot data in the highest performing local storage. This allows for more flexibility and higher performance, with a performance to cost ratio that is 2x higher than DS2 nodes. RA3 nodes are often used for large workloads where performance and cost management are both critical.
+</p>
+<p>
+ More information on RA3 vs DS2
+ <a href="https://aws.amazon.com/blogs/apn/amazon-redshift-benchmarking-comparison-of-ra3-vs-ds2-instance-types/">
+  here
+ </a>
+ .
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#ensure-cluster-cpu-is-at-a-healthy-level" id="ensure-cluster-cpu-is-at-a-healthy-level" title="Permalink">
+  #
+ </a>
+ Ensure cluster CPU is at a healthy level
+</h2>
+<p>
+ If your cluster CPU usage is consistently high, this typically means that the cluster is working very hard to execute queries.
+</p>
+<p>
+ High CPU utilization can lead to many issues and performance bottlenecks, such as:
+</p>
+<ul>
+ <li>
+  Longer query response times, sometimes resulting in timeouts or failures.
+ </li>
+ <li>
+  Increased number of queues and further increasing wait times.
+ </li>
+ <li>
+  Lower efficiency in processing tasks.
+ </li>
+ <li>
+  Potential for thermal throttling in extreme cases, which reduces compute power.
+ </li>
+</ul>
+<p>
+ Note that it’s completely fine for cluster CPU to spike to >80% occasionally, but it is not advisable for CPU usage to be consistently high.
+</p>
+<p>
+ When CPU usage is consistently >80%, automated tasks such as automatic table optimization, auto vacuum, and auto analyze will not run. Automated tasks like these should ideally run weekly, the exact cadence can be found by looking at Redshift Advisor or STL_ALERT_EVENT_LOG.
+</p>
+<p>
+ There are many ways to mitigate high CPU usage and the best strategy will depend on your workload. Here are some strategies to consider:
+</p>
+<ul>
+ <li>
+  Optimize queries for better performance. This could mean rewriting queries and ensuring tables are properly vacuumed and analyzed.
+ </li>
+ <li>
+  Implement workload management (WLM) to prioritize critical queries and manage resources between different user groups.
+ </li>
+ <li>
+  Resize the cluster by adding more nodes or upgrading to a more powerful node type.
+ </li>
+ <li>
+  Set up alerts to notify you when CPU utilization exceeds a threshold so you can take proactive steps.
+ </li>
+</ul>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#enabling-more-than-one-wlm-for-better-memory-allocation" id="enabling-more-than-one-wlm-for-better-memory-allocation" title="Permalink">
+  #
+ </a>
+ Enabling more than one WLM for better memory allocation
+</h2>
+<p>
+ Use workload management (WLM) to prioritize workloads better such that fast running queries are not backlogged by long-running queries. An example of a long-running query could be a query that pulls all metrics across all product and business lines, and aggregates them into a business report for leadership teams to review.
+</p>
+<p>
+ By creating more than one WLM queue, you can allocate resources much more efficiently. WLM will automatically match a running query to a queue based on the user or query group that is associated with the query configuration.
+</p>
+<p>
+ Multiple queues are not turned on by default! Most companies that are running their own Redshift cluster (not serverless) would benefit from having at least three queues:
+</p>
+<ol>
+ <li>
+  Queue for data ingestion
+ </li>
+ <li>
+  Queue for reporting
+ </li>
+ <li>
+  Queue for analytics
+ </li>
+</ol>
+<p>
+ Three is a good starting point even for basic workloads. While you can create up to eight queues per cluster, having too many queues could complicate the setup and add overhead.
+</p>
+<p>
+ To enable additional WLM queues, specify this as a parameter group within your Redshift cluster. Click
+ <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/workload-mgmt-config.html">
+  here
+ </a>
+ for more details.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#concurrency-scaling-to-handle-time-of-day-traffic" id="concurrency-scaling-to-handle-time-of-day-traffic" title="Permalink">
+  #
+ </a>
+ Concurrency scaling to handle time of day traffic
+</h2>
+<p>
+ Concurrency scaling is another feature within WLM that can increase the performance of read operations and common data ingestion write operations.
+</p>
+<p>
+ When concurrency scaling is turned on, Redshift automatically adds additional cluster capacity to process increases in read and write queries. Essentially, this is a separate concurrency scaling cluster that offloads certain workloads from the main cluster. Instead of waiting in the queue, eligible queries (see limitations on supported queries) will be processed by the concurrency scaling cluster.
+</p>
+<p>
+ We recommend enabling this for all Redshift clusters. Note that you are only billed for the time actively spent running queries. Additionally, this feature is available for free 1 hour per day per cluster.
+</p>
+<ul>
+ <li>
+  Read more on
+  <a href="https://docs.aws.amazon.com/redshift/latest/dg/concurrency-scaling.html">
+   concurrency scaling
+  </a>
+  .
+ </li>
+ <li>
+  Implement hot and cold storage for stateful time series data
+ </li>
+</ul>
+<p>
+ If you have stateful data that follows a time series pattern, you could benefit from implementing hot and cold storage.
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#hot-/-cold-storage-example" id="hot-/-cold-storage-example" title="Permalink">
+  #
+ </a>
+ Hot / cold storage example
+</h3>
+<p>
+ Company ABC has a table that logs every email sent and there are updates to annotate whether the email was delivered, bounced, unsubscribed, etc.
+</p>
+<p>
+ This table will only get larger over time. However, most business workloads only relies on the data that ranges from T7 to T365 (trailing # of days). Without implementing cold or hot storage, the performance of upserting will take longer over time as there is an increasing amount of data to scan.
+</p>
+<p>
+ Instead of having one Redshift table called emails, implementing hot and cold storage with T365_emails and archived_emails will improve query performance and also help optimize storage costs.
+</p>
+<p>
+ A first iteration of this approach could look something like this:
+</p>
+<p>
+ <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/redshift/all_emails_view.png"/>
+</p>
+<ul>
+ <li>
+  For recent emails, you can directly query
+  <code>
+   T365_emails
+  </code>
+ </li>
+ <li>
+  If you want to be able to see all emails, you can query
+  <code>
+   all_emails
+  </code>
+ </li>
+</ul>
+<p>
+ This means that all the data still lies in Redshift’s managed storage which costs around $0.024 per GB ($24 per TB).
+</p>
+<p>
+ If you have tons of infrequently used data, storage can be optimized further with Redshift Spectrum which allows you to execute SQL directly against S3. 
+By choosing the right storage tier (infrequent, one zone, glacier, etc.), you could further optimize costs down to as low as $0.00099 per GB ($1 per TB).
+</p>
