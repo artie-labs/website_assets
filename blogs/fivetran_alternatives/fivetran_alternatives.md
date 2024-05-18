@@ -1,5 +1,3 @@
-# 8 Fivetran Alternatives
-
 Fivetran was founded in 2012 and is one of the most popular data integration solutions. They have broad coverage of sources and are a great one-stop shop to get data into data warehouses or data lakes. However, there are areas where they are lacking and where we hear a lot of customer complaints, such as insufficient customer support and communication, expensive pricing, and lack of true real-time replication capabilities (note that a 1 minute batch frequency does not equate to 1 minute end to end latency). 
 
 In any case, there are data engineering teams out there that are hungry for an alternative to Fivetran. We’ve compiled a list of data integration tools to provide the information needed to switch to a better database replication solution. 
