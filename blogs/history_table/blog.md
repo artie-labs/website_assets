@@ -58,6 +58,7 @@ Using the prior example, this is what the different types of SCD would look like
 | 1	  | Alice Smith | 	2021-01-01 00:01:23	 | UPDATE            | 
 | 2	  | Bob	        | 2021-01-01 00:00:00	  | CREATE            | 
 
+
 ### Type 2
 
 | id | name        | __db_updated_at     | __artie_operation |
@@ -66,12 +67,14 @@ Using the prior example, this is what the different types of SCD would look like
 | 2  | Bob         | 2021-01-01 00:00:00 | CREATE            |
 | 1  | Alice Smith | 2021-01-01 00:01:23 | UPDATE            |
 
+
 ### Type 3
 
 | id | name        | __db_updated_at     | __artie_operation | previous_name |
 |----|-------------|---------------------|-------------------|---------------|
 | 1  | Alice Smith | 2021-01-01 00:01:23 | CREATE            | Alice         |
 | 2  | Bob         | 2021-01-01 00:00:00 | CREATE            |               |
+
 
 ### Type 4
 
@@ -90,6 +93,7 @@ Using the prior example, this is what the different types of SCD would look like
 | 2  | Bob         | 2021-01-01 00:00:00 | CREATE            |
 | 1  | Alice Smith | 2021-01-01 00:01:23 | UPDATE            |
 
+
 ## Artie leverages SCD Type 4 for simplicity and performance
 
 Our initial launch of history table will support SCD Type 4, which is extremely useful when organizations need to balance fast access to current data with the need to maintain a detailed history of changes.
@@ -98,23 +102,22 @@ By maintaining a separate history table, SCD Type 4 ensures all historical data 
 
 ## Examples
 
-### Ecommerce company tracking price trends and inventory management
+**Ecommerce company tracking price trends and inventory management**
 
 Waves R Us sells beach toys. They have an inventory table that contains product information and available units. 
 They use history mode to analyze their previous inventory levels to forecast seasonality with the goal of figuring out the optimal inventory levels per product.
 
-### Fintech company tracking financial health to predict delinquency rates
+**Fintech company tracking financial health to predict delinquency rates**
 
 Instant Loans 4 U leverages history tables to track consumer credit scores, loan statuses and account balances over time to model probability of delinquency rates when it provides loans to consumers.
 
-### Subscription company tracking user status and preference changes
+**Subscription company tracking user status and preference changes**
 
 Live Elixirs is a subscription service for longevity elixirs. Live Elixirs leverages history tables to:
 1. Understand customer taste preferences over time in order to improve their product
 2. Understand subscription trends so they can predict and reduce churn
 
-
-## Sign up to try Artie's history tables
+### Sign up to try Artie's history tables
 
 Artie Cloud now has a one-click option to enable history tables. Customers can do this within the table list view.
 
