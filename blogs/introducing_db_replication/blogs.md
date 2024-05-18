@@ -9,7 +9,7 @@ On a high level, there are two broad categories of database replication: interna
 | Internal | Data is synced from a primary or master database to secondary or replica databases.  | High availability. To have standby replicas in case the primary database is unavailable. <br/> Load balance workload to achieve higher performance.  |
 | External | Data is synced to destinations outside of the database cluster.                      | Varies, but includes supporting different access patterns and types of workloads.                                                                    |
 
-![img.png](img.png)
+![img.png](replication_img.png)
 
 ## Replicating into data warehouses
 

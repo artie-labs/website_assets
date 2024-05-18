@@ -1,0 +1,266 @@
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#database-replication" id="database-replication" title="Permalink">
+  #
+ </a>
+ Database replication
+</h2>
+<p>
+ Database replication is a cornerstone in achieving a robust, scalable, and fault-tolerant data management infrastructure. Database replication is a key component in data management, involving the creation of multiple copies of a database across different servers or locations. This process ensures data redundancy, reliability, and performance. Data accuracy and latency are two important factors in database replication to ensure reliable access to data for decision-making and operational continuity.
+</p>
+<p>
+ On a high level, there are two broad categories of database replication: internal and external.
+</p>
+<table class="page-table">
+ <thead>
+  <tr>
+   <th>
+    Types
+   </th>
+   <th>
+    Definition
+   </th>
+   <th>
+    Goals
+   </th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td>
+    Internal
+   </td>
+   <td>
+    Data is synced from a primary or master database to secondary or replica databases.
+   </td>
+   <td>
+    High availability. To have standby replicas in case the primary database is unavailable.
+    <br/>
+    Load balance workload to achieve higher performance.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    External
+   </td>
+   <td>
+    Data is synced to destinations outside of the database cluster.
+   </td>
+   <td>
+    Varies, but includes supporting different access patterns and types of workloads.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<p>
+ <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/introducing_db_replication/replication_img.png"/>
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#replicating-into-data-warehouses" id="replicating-into-data-warehouses" title="Permalink">
+  #
+ </a>
+ Replicating into data warehouses
+</h2>
+<p>
+ The importance of database replication extends to the realm of data warehousing, where it plays a vital role in maintaining up-to-date and synchronized data across various systems. Data in the data warehouse is then used by downstream workloads to perform machine learning, experimentation, business intelligence, and reverse ETLs, among others.
+</p>
+<p>
+ Replicating data from operational databases to data warehouses is a critical process for several reasons:
+</p>
+<ol>
+ <li>
+  Separation of operational and analytical workloads
+ </li>
+ <li>
+  Centralizing data
+ </li>
+ <li>
+  Scalability of data systems
+ </li>
+ <li>
+  Backup and disaster recovery
+ </li>
+</ol>
+<p>
+ <strong>
+  Separation of operational and analytical workloads
+ </strong>
+</p>
+<p>
+ Operational (OLTP) databases are optimized for transactions, such as CRUD operations: creating, reading, updating, and deleting records. OLTP databases are characterized for having high throughput and low latency, and are meant for applications with well-known access patterns.
+</p>
+<p>
+ Data warehouses on the other hand, are designed for analytical processing (OLAP) and specifically optimized for fast query performance on large volumes of data, with the ability to perform more freeform queries. 
+Replicating data from databases to data warehouses separates these two distinct types of workloads, ensuring that the performance of operational systems is not impacted by analytical queries, which can be resource-intensive.
+</p>
+<p>
+ Read more
+ <a href="https://www.artie.com/blogs/what-are-the-differences-between-oltp-and-olap-databases">
+  here
+ </a>
+ on the differences between OLTP and OLAP databases.
+</p>
+<p>
+ <strong>
+  Centralizing data
+ </strong>
+</p>
+<p>
+ Data replication allows companies to consolidate data from multiple sources, including various databases and other data systems (i.e. SaaS sources such as Salesforce and Zendesk data), into one centralized location (i.e. a data warehouse). 
+This consolidated view in a data warehouse is essential for comprehensive analytics, business intelligence, customer support, financial reporting, and providing a more complete picture of the organization's operations.
+</p>
+<p>
+ <strong>
+  Scalability of data systems
+ </strong>
+</p>
+<p>
+ Data warehouses are designed to handle very large volumes of data and are more scalable for storing historical data than transactional databases. This helps organizations efficiently manage their data storage.
+</p>
+<p>
+ <strong>
+  Backup and disaster recovery
+ </strong>
+</p>
+<p>
+ Having data replicated in a data warehouse can serve as a form of backup. In case of a failure in the operational database, the data in the data warehouse can provide a recent copy that can be used for recovery purposes.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#change-data-capture" id="change-data-capture" title="Permalink">
+  #
+ </a>
+ Change data capture
+</h2>
+<p>
+ Change data capture (CDC) is a technique used to track changes in a database. CDC captures changes to data in real-time and makes them available for further processing, such as replicating it into a dara warehouse.
+CDC is efficient - it minimizes the amount of data that needs to be transferred, as it only captures the changes made to the data, rather than the entire dataset.
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#types-of-replication" id="types-of-replication" title="Permalink">
+  #
+ </a>
+ Types of replication
+</h3>
+<table class="page-table">
+ <thead>
+  <tr>
+   <th>
+    Type
+   </th>
+   <th>
+    Description
+   </th>
+   <th>
+    Trade-offs
+   </th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td>
+    Full table replication
+   </td>
+   <td>
+    Replicates the entire table each time the job runs
+   </td>
+   <td>
+    Simple to implement, but can be inefficient for large tables
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Incremental replication
+   </td>
+   <td>
+    Only replicates the changes made since the last replication
+   </td>
+   <td>
+    More complex to implement, but more efficient for large tables.
+    <br/>
+    Cannot capture hard-deletes
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Trigger-based replication
+   </td>
+   <td>
+    Uses triggers to capture changes as they happen. Can capture all changes, including hard-deletes
+   </td>
+   <td>
+    Can be inefficient for large tables, as triggers creates database load.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Log-based replication
+   </td>
+   <td>
+    Uses the database's transaction log to capture changes. Can capture all changes, including hard-deletes
+   </td>
+   <td>
+    Most efficient, however extremely complicated to set up and requires heavy engineering investment.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#challenges" id="challenges" title="Permalink">
+  #
+ </a>
+ Challenges
+</h2>
+<p>
+ There are several key challenges with database replication that we often see:
+</p>
+<ol>
+ <li>
+  Data consistency
+ </li>
+ <li>
+  Scalability
+ </li>
+ <li>
+  Latency
+ </li>
+</ol>
+<p>
+ <strong>
+  Data consistency
+ </strong>
+</p>
+<p>
+ Ensuring data consistency across multiple databases is a key challenge in database replication. This includes ensuring that data is replicated accurately and in the correct order. 
+Inconsistent data can lead to incorrect results in downstream analytics and decision-making. This is particularly hard for log-based replication where the order of changes is crucial and also missing one event can lead to data inconsistency.
+</p>
+<p>
+ <strong>
+  Scalability
+ </strong>
+</p>
+<p>
+ Certain types of replication can introduce overhead to the source database which may limit the amount of tables you can replicate and the frequency at which you can replicate data.
+</p>
+<p>
+ <strong>
+  Latency
+ </strong>
+</p>
+<p>
+ Latency is the time it takes for data to be replicated from the source to the destination. High latency can lead to outdated data in the data warehouse, which can impact the accuracy of analytics.
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#artie-is-an-out-of-the-box-solution-for-log-based-database-replication" id="artie-is-an-out-of-the-box-solution-for-log-based-database-replication" title="Permalink">
+  #
+ </a>
+ Artie is an out-of-the-box solution for log-based database replication
+</h3>
+<p>
+ Artie leverages CDC and stream processing to perform database replication to data warehouses in real-time. 
+Artie takes all the headaches out of setting up log-based replication and provides you an easy-to-use dashboard.
+</p>
+<p>
+ <a href="https://artie.com/contact">
+  Contact us
+ </a>
+ to discuss your use case and start a 14-day free trial.
+</p>
