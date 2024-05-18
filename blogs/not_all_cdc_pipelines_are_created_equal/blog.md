@@ -13,7 +13,7 @@ Design principles we followed at Artie
 
 Push-based replication means the source database pushes CDC logs as soon as they’re captured, whereas pull-based replication means incremental changes are pulled out by querying against the database. Push-based replication minimizes load as it does not require running queries, and therefore minimizes impact on database performance.
 
-## Never lose our position in the transaction logs
+## 2. Never lose our position in the transaction logs
 
 Transaction logs are database operation logs (oplogs) in which every insert, update, and delete operation is recorded. These logs are ephemeral and there is a background process that will advance and purge old oplogs. Each database has their own special name for it, along with how long the data is retained.
 
