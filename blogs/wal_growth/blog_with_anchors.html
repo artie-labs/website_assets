@@ -1,0 +1,148 @@
+<p>
+ From working with Postgres on AWS RDS, we have noticed that idle or dev databases will occasionally experience replication slot overflow and cause issues with customers. 
+It’s also happened to us while testing out CDC pipelines. We wrote this guide to describe why this issue happens and how to prevent replication slot overflow.
+</p>
+<p>
+ Artie Cloud customers can avoid replication slot overflow for low traffic databases by enabling heartbeats on the dashboard.
+</p>
+<p>
+ For anyone using Postgres on AWS RDS, it’s possible you’ve run into the scenario of an idle or unused dev database suddenly running out of memory and causing replication slot overflow. 
+All of a sudden you’re up in the middle of the night trying to debug the issue and understand why your database is down and why your database storage is full.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#what-is-causing-replication-slots-to-overflow" id="what-is-causing-replication-slots-to-overflow" title="Permalink">
+  #
+ </a>
+ What is causing replication slots to overflow?
+</h2>
+<p>
+ When doing anything related to CDC (change data capture), a replication slot in Postgres is created. For Postgres specifically, CDC events are recorded and stored in the database’s WAL (write-ahead logging). 
+WAL exists to ensure data integrity and log the records describing the changes. It’s also helpful for downstream applications to subscribe to and consume CDC events reliably.
+</p>
+<p>
+ Replication slot overflow happens when the WAL accumulates and grows, consumes all your database’s memory, and causes your database to go down. But, why does this happen to idle/unused databases?
+</p>
+<p>
+ The
+ <strong>
+  underlying reason is due to AWS heartbeats. AWS RDS periodically writes a heartbeat to a table in the database every 5 minutes
+ </strong>
+ , whether the database is being actively used or not. 
+These heartbeats sit in the WAL and the default WAL segment size is 64MB. The purpose for AWS writing heartbeats is for various reasons, including to monitor the health of their databases.
+</p>
+<p>
+ For an active database, heartbeats do not cause an issue because the WAL is almost constantly being drained as new CDC logs are processed by downstream consumers. 
+However, for idle databases with no CDC logs, heartbeats result in WAL accumulating by 64MB every 5 minutes, or 18.4GB per day! 
+Heartbeats are not observed by most CDC applications, so it doesn't get processed. After enough time has passed, the replication slot overflows and your database goes down.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#how-do-we-prevent-wal-growth-for-a-postgresql-database-running-on-aws-rds" id="how-do-we-prevent-wal-growth-for-a-postgresql-database-running-on-aws-rds" title="Permalink">
+  #
+ </a>
+ How do we prevent WAL growth for a PostgreSQL database running on AWS RDS?
+</h2>
+<blockquote>
+ <p>
+  Note that heartbeats is only necessary for low traffic and idle databases (dev or test) and not necessary for active databases.
+ </p>
+</blockquote>
+<p>
+ If you are using Debezium to read CDC logs from the WAL, you can turn on the heartbeats feature. 
+You have to first create a
+ <code>
+  heartbeat_table
+ </code>
+ in the idle/low traffic database and Debezium will periodically ping the database with an update, which will create a CDC event and prevent WAL growth.
+</p>
+<pre>
+-- Creating a heartbeats table
+CREATE TABLE test_heartbeat_table (id text PRIMARY KEY, ts timestamp);
+-- Insert one row so subsequent updates will create a CDC event
+INSERT INTO test_heartbeat_table (id, ts) VALUES (1, NOW());
+</pre>
+<p>
+ When heartbeats are enabled, Artie will then periodically issue this command to advance the replication slot.
+</p>
+<pre>
+UPDATE test_heartbeat_table set ts = now() where id = '1';
+</pre>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#other-best-practices-to-consider" id="other-best-practices-to-consider" title="Permalink">
+  #
+ </a>
+ Other best practices to consider
+</h2>
+<ul>
+ <li>
+  Monitor your instance for
+  <code>
+   free_storage_space
+  </code>
+  and set up alerts
+ </li>
+ <li>
+  Enable storage autoscaling
+ </li>
+ <li>
+  Are there any long-running queries?
+ </li>
+ <li>
+  Query
+  <code>
+   pg_locks
+  </code>
+  to identify if any locks are being held for a long time
+ </li>
+ <li>
+  Set
+  <code>
+   statement_timeout
+  </code>
+  and
+  <code>
+   idle_in_transaction_session_timeout
+  </code>
+  to prevent long-running queries
+ </li>
+ <li>
+  Configure
+  <code>
+   max_slot_wal_keep_size
+  </code>
+  to prevent replication slot overflow.
+  <ul>
+   <li>
+    Each file size is 64mb, so if you want to keep 1GB, then you should set this to be
+    <code>
+     16
+    </code>
+    .
+   </li>
+   <li>
+    If the replication slot size is reached, the slot will be automatically dropped to protect the database from crashing.
+   </li>
+  </ul>
+ </li>
+</ul>
+<p>
+ <strong>
+  Identify long-running queries:
+ </strong>
+</p>
+<pre>
+SELECT
+  pid,
+  now() - pg_stat_activity.query_start AS duration,
+  query,
+  state
+FROM pg_stat_activity
+WHERE (now() - pg_stat_activity.query_start) > interval '1 minute';
+</pre>
+<p>
+ <strong>
+  Identify any locks:
+ </strong>
+</p>
+<pre>
+SELECT * FROM pg_locks;
+</pre>
