@@ -1,0 +1,233 @@
+<p>
+ When differentiating between databases, one key characteristic is whether the database is OLTP or OLAP. In this blog post, we will explore what they are, key differences and cover real-world examples.
+</p>
+<h1>
+ <a aria-hidden="true" class="anchor-link" href="#what-is-oltp-and-olap" id="what-is-oltp-and-olap" title="Permalink">
+  #
+ </a>
+ What is OLTP and OLAP?
+</h1>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#oltp" id="oltp" title="Permalink">
+  #
+ </a>
+ OLTP
+</h2>
+<p>
+ <strong>
+  Online Transactional Processing (OLTP)
+ </strong>
+ databases are characterized for having a high throughput, low latency transactions.
+</p>
+<p>
+ OLTP databases are known for having strong data integrity, transactions support and indices to support well-known access patterns.
+</p>
+<p>
+ OLTP databases are used to enable applications to serve requests for applications such as:
+</p>
+<ul>
+ <li>
+  Is this person authenticated?
+ </li>
+ <li>
+  Processing a credit card payment
+ </li>
+ <li>
+  Connecting a rider with a driver
+ </li>
+</ul>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#olap" id="olap" title="Permalink">
+  #
+ </a>
+ OLAP
+</h2>
+<p>
+ <strong>
+  Online Analytical Processing (OLAP)
+ </strong>
+ databases primarily consists of read-heavy workloads and are primarily used for data analysis.
+While performance is still important, it is less critical compared to OLTP.
+</p>
+<p>
+ Example of such queries:
+</p>
+<ul>
+ <li>
+  How many customers are signing up each month?
+ </li>
+ <li>
+  What is the total number of rides per city?
+ </li>
+ <li>
+  What is the average rating of a driver?
+ </li>
+</ul>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#key-differences" id="key-differences" title="Permalink">
+  #
+ </a>
+ Key Differences
+</h2>
+<table class="page-table">
+ <thead>
+  <tr>
+   <th>
+    Category
+   </th>
+   <th>
+    OLTP
+   </th>
+   <th>
+    OLAP
+   </th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td>
+    Access patterns
+   </td>
+   <td>
+    Well-known. Queries are optimized by creating indices to support their access patterns.
+   </td>
+   <td>
+    Ad-hoc. OLAP databases allow for dynamic queries across multiple data sets and are extremely flexible.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Type of workload
+   </td>
+   <td>
+    Reading, updating and deleting. This is most suitable for applications to process incoming requests.
+   </td>
+   <td>
+    Read-heavy. OLAP databases are used for data analysis and reporting.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Relational vs. NoSQL
+   </td>
+   <td>
+    OLTP can be relational or NoSQL.
+   </td>
+   <td>
+    OLAP is typically relational.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Scope of data aggregation
+   </td>
+   <td>
+    Database level. You can only join the data that resides on the server.
+   </td>
+   <td>
+    We can join this data across different database instances, services and more.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Main users
+   </td>
+   <td>
+    Internal application. Note the singularity of the statement. It's generally advisable for each application to have its own database instance.
+   </td>
+   <td>
+    Data analysts
+    <br/>
+    Data scientists
+    <br/>
+    Machine learning engineers
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Performance
+   </td>
+   <td>
+    Operations are measured in milliseconds. Performance is hypercritical.
+   </td>
+   <td>
+    Operations are measured in seconds. Performance is important but not as critical as OLTP.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Examples
+   </td>
+   <td>
+    Amazon RDS, MySQL, PostgreSQL
+   </td>
+   <td>
+    Amazon Redshift, Google BigQuery, Snowflake
+   </td>
+  </tr>
+ </tbody>
+</table>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#putting-things-together" id="putting-things-together" title="Permalink">
+  #
+ </a>
+ Putting things together
+</h2>
+<p>
+ <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/olap_oltp/example.png"/>
+</p>
+<p>
+ In this diagram, the customer would place an order which would result in data being saved in the Order Postgres DB. The order service would also make an API call to the Payment service which has its own DB as well. There would be internal processes (typically ETL jobs) that are periodically run to synchronize the data within the service transactional database into the company’s data warehouse.
+</p>
+<p>
+ Separately, there would be processes to synchronize external data from Zendesk, Stripe, Mailchimp.
+The exact methodology would depend on the vendors’ capabilities.
+There are vendors that have native integrations with selected data warehouses, others require custom integrations via their API.
+Companies like Fivetran, Airbyte, Rivery provide connectors that integrate with the tools’ API and load the datasets into your data warehouse.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#how-does-artie-bridge-the-gap" id="how-does-artie-bridge-the-gap" title="Permalink">
+  #
+ </a>
+ How does Artie bridge the gap?
+</h2>
+<p>
+ <a href="https://www.artie.com/blogs/introducing-artie-transfer">
+  Artie’s Transfer
+ </a>
+ product is able to drastically improve companies’ internal processes by streaming and only applying the changes to the downstream data warehouse. By doing so, Transfer is able to reduce the latency between the two systems from hours/days to seconds.
+</p>
+<p>
+ Artie Transfer has the following features built in:
+</p>
+<ul>
+ <li>
+  Automatic retries & idempotency. We take reliability seriously and it's feature 0. Latency reduction is nice, but doesn't matter if the data is wrong. We provide automatic retries and idempotency such that we will always achieve eventual consistency.
+ </li>
+ <li>
+  Automatic table creation. Transfer will create the table in the designated database if the table doesn't exist.
+ </li>
+ <li>
+  Error reporting. Provide your Sentry API key and errors from data processing will appear in your Sentry project.
+ </li>
+ <li>
+  Schema detection. Transfer will automatically detect column changes and apply them to the destination.
+ </li>
+ <li>
+  Scalable architecture. Transfer's architecture stays the same whether we’re dealing with 1GB or 100+ TB of data.
+ </li>
+ <li>
+  Sub-minute latency. Transfer is built with a consumer framework and is constantly streaming messages in the background. Say goodbye to schedulers!
+ </li>
+</ul>
+<p>
+ If you are interested in learning more check out
+ <a href="https://github.com/artie-labs/transfer">
+  Transfer’s GitHub repo
+ </a>
+ , schedule a demo here or drop us a note at
+ <a href="mailto:hi@artie.so">
+  hi@artie.so
+ </a>
+ !
+</p>
