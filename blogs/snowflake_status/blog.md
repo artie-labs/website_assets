@@ -1,4 +1,3 @@
-# Artie achieves Select tier partner status with Snowflake
 **San Francisco, California 2/28/2024** - [Artie](https://www.artie.com/) today announced that it has achieved Select tier partner status from [Snowflake](https://www.snowflake.com/), the Data Cloud company. 
 As a Select partner, Artie will accelerate the digital transformation of its joint customers who can fully leverage the performance, flexibility, and near-infinite scalability of the Snowflake Data Cloud.
 

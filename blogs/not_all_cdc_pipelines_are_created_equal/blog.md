@@ -1,5 +1,3 @@
-# Not all CDC pipelines are created equal
-
 There are many ways to leverage change data capture (CDC) to perform data replication from databases to external destinations, like data warehouses, data lakes, and other databases. CDC is simply a mechanism for detecting changes and the way the pipeline is implemented can significantly impact performance and day-to-day maintenance requirements. In this blog, we run through the design principles we followed when building Artie and reasoning behind our architectural decisions.
 
 Design principles we followed at Artie
@@ -101,9 +99,8 @@ Dropping columns is a much harder problem to solve, especially because the opera
 
 Inference is particularly useful for databases that do not provide a schema like MongoDB.
 
-If we need to create a new column, we will look at the first not-null value and inspect its data type to create the column.
-
-If the column already exists, Artie enables customers to control the destination schema. Once the column is created, Artie will look at the data type in the destination and automatically cast values to match. We will only hard fail if the values are incompatible with the new data type.
+* If we need to create a new column, we will look at the first not-null value and inspect its data type to create the column.
+* If the column already exists, Artie enables customers to control the destination schema. Once the column is created, Artie will look at the data type in the destination and automatically cast values to match. We will only hard fail if the values are incompatible with the new data type.
 
 To get a sense of how this works, refer to the table below.
 
