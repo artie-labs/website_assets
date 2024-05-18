@@ -125,9 +125,15 @@ With Artie’s streaming pipelines and periodic jobs like
 </p>
 <p>
  Prebuilt monitors that we're launching includes:
-* Database permission errors
-* Replication slot growth (for Postgres users)
 </p>
+<ul>
+ <li>
+  Database permission errors
+ </li>
+ <li>
+  Replication slot growth (for Postgres users)
+ </li>
+</ul>
 <h2>
  <a aria-hidden="true" class="anchor-link" href="#making-the-analytics-portal-more-actionable" id="making-the-analytics-portal-more-actionable" title="Permalink">
   #
@@ -155,21 +161,38 @@ With Artie’s streaming pipelines and periodic jobs like
 </p>
 <p>
  You can then set up monitors such as:
-* Flag transactions that are 1.5 stdev above average and the merchant just signed up on the platform less than a week ago
-* Flag key accounts where transaction volume where there's volume anomalies
 </p>
+<ul>
+ <li>
+  Flag transactions that are 1.5 stdev above average and the merchant just signed up on the platform less than a week ago
+ </li>
+ <li>
+  Flag key accounts where transaction volume where there's volume anomalies
+ </li>
+</ul>
 <p>
  <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/analytics_portal/alert_path.png"/>
 </p>
 <p>
  Depending on how you'd like to be notified, we plan to support the following escalation channels:
-* Email
-* Slack
-* Webhooks
 </p>
+<ul>
+ <li>
+  Email
+ </li>
+ <li>
+  Slack
+ </li>
+ <li>
+  Webhooks
+ </li>
+</ul>
 <p>
  In this example, the escalation channel sends a webhook to your API server, so you can run more rigorous checks.
 </p>
 <p>
- If you’re interested in learning more, contact the Artie team at hi@artie.so.
+ <a href="https://artie.com/contact">
+  Contact us
+ </a>
+ if you're interested in learning more about our Analytics Portal and how it can help your data team!
 </p>

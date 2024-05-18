@@ -53,6 +53,7 @@ The Analytics Portal comes with prebuilt charts and monitors such that customers
 ![img.png](graphs.png)
 
 Prebuilt monitors that we're launching includes:
+
 * Database permission errors
 * Replication slot growth (for Postgres users)
 
@@ -67,16 +68,18 @@ For example, you are a fintech that wants to monitor live transactions to detect
 You have a `transactions` table which gets synced to your Snowflake instance. You should be able to plot a chart of average, medium, p95 and max transaction sizes across various lookback periods (30 min, 1h, 24h, 7d).
 
 You can then set up monitors such as:
+
 * Flag transactions that are 1.5 stdev above average and the merchant just signed up on the platform less than a week ago
 * Flag key accounts where transaction volume where there's volume anomalies
 
 ![img.png](alert_path.png)
 
 Depending on how you'd like to be notified, we plan to support the following escalation channels:
+
 * Email
 * Slack
 * Webhooks
 
 In this example, the escalation channel sends a webhook to your API server, so you can run more rigorous checks.
 
-If you’re interested in learning more, contact the Artie team at hi@artie.so.
+[Contact us](https://artie.com/contact) if you're interested in learning more about our Analytics Portal and how it can help your data team!
