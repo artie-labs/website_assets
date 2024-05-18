@@ -1,0 +1,93 @@
+<script src="https://tools.refokus.com/rich-text-enhancer/bundle.v1.0.0.js"></script>
+<script>
+    $(document).ready(function () {
+        const listItems = $('li');
+        listItems.each(function (index, item) {
+            if ($(item).text().startsWith('~~')) {
+                indentText(this, 'rich-text-sub-bullet-2');
+            } else if ($(item).text().startsWith('~')) {
+                indentText(this, 'rich-text-sub-bullet');
+            }
+        });
+
+        function indentText(element, className) {
+            const newText = $(element).text().replace(/^~+/g, '');
+            $(element).text(newText);
+            $(element).addClass(className);
+        }
+    });
+
+    function getHeadersAndLinks() {
+        const headers = document.querySelectorAll('h2');
+        const results = [];
+        headers.forEach(header => {
+            const anchor = header.querySelector('a.anchor-link');
+            if (anchor) {
+                const text = header.textContent.trim().replace('#', '');
+                const link = anchor.getAttribute('href');
+                results.push({
+                    header: text,
+                    link: link
+                });
+            }
+        });
+
+        return results;
+    }
+
+    function addToTocList() {
+        const tocList = document.querySelector('ul.toc-list');
+        if (!tocList) {
+            console.error('No ul element with class "toc-list" found.');
+            return;
+        }
+
+        const headersAndLinks = getHeadersAndLinks();
+        if (headersAndLinks.length === 0) {
+            // If there's no headers, remove `.toc-container`
+            const tocContainer = document.querySelector('.toc-container');
+            if (tocContainer) {
+                tocContainer.remove();
+            }
+            return;
+        }
+
+        headersAndLinks.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'toc-list-item';
+
+            // Create a new a element, assign the class 'toc-link'
+            const a = document.createElement('a');
+            a.className = 'toc-link';
+            a.textContent = item.header;
+            a.href = item.link;
+
+            li.appendChild(a);
+            tocList.appendChild(li);
+        });
+
+        setActiveClassOnScroll();
+    }
+
+    function setActiveClassOnScroll() {
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const headerSections = document.querySelectorAll('h2');
+        let current = '';
+        headerSections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 60) { // Adjust the offset as needed
+                current = section.querySelector('a.anchor-link').getAttribute('href');
+            }
+        });
+        tocLinks.forEach(link => {
+            link.classList.remove('toc-active');
+            if (link.getAttribute('href') === current) {
+                link.classList.add('toc-active');
+            }
+        });
+    }
+
+    // Set up the listeners
+    window.addEventListener('scroll', setActiveClassOnScroll);
+    window.addEventListener("load", addToTocList);
+</script>
