@@ -1,0 +1,345 @@
+<h1>
+ <a aria-hidden="true" class="anchor-link" href="#not-all-cdc-pipelines-are-created-equal" id="not-all-cdc-pipelines-are-created-equal" title="Permalink">
+  #
+ </a>
+ Not all CDC pipelines are created equal
+</h1>
+<p>
+ There are many ways to leverage change data capture (CDC) to perform data replication from databases to external destinations, like data warehouses, data lakes, and other databases. CDC is simply a mechanism for detecting changes and the way the pipeline is implemented can significantly impact performance and day-to-day maintenance requirements. In this blog, we run through the design principles we followed when building Artie and reasoning behind our architectural decisions.
+</p>
+<p>
+ Design principles we followed at Artie
+</p>
+<ol>
+ <li>
+  Push > Pull
+ </li>
+ <li>
+  Never lose our position in the transaction logs
+ </li>
+ <li>
+  Consistency is king
+ </li>
+ <li>
+  Minimize data indigestion
+ </li>
+</ol>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#1-push->-pull" id="1-push->-pull" title="Permalink">
+  #
+ </a>
+ 1. Push > Pull
+</h2>
+<p>
+ Push-based replication means the source database pushes CDC logs as soon as they’re captured, whereas pull-based replication means incremental changes are pulled out by querying against the database. Push-based replication minimizes load as it does not require running queries, and therefore minimizes impact on database performance.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#never-lose-our-position-in-the-transaction-logs" id="never-lose-our-position-in-the-transaction-logs" title="Permalink">
+  #
+ </a>
+ Never lose our position in the transaction logs
+</h2>
+<p>
+ Transaction logs are database operation logs (oplogs) in which every insert, update, and delete operation is recorded. These logs are ephemeral and there is a background process that will advance and purge old oplogs. Each database has their own special name for it, along with how long the data is retained.
+</p>
+<table class="page-table">
+ <thead>
+  <tr>
+   <th>
+    Database
+   </th>
+   <th>
+    Name
+   </th>
+   <th>
+    Data Retention Period
+   </th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td>
+    PostgreSQL
+   </td>
+   <td>
+    Write-ahead Log (WAL)
+   </td>
+   <td>
+    Configurable
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MySQL
+   </td>
+   <td>
+    Binary Logs (binlog)
+   </td>
+   <td>
+    Configurable
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MongoDB
+   </td>
+   <td>
+    Change streams
+   </td>
+   <td>
+    Configurable (defaults to 192MB)
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DynamoDB
+   </td>
+   <td>
+    DynamoDB streams
+   </td>
+   <td>
+    24 hours
+   </td>
+  </tr>
+ </tbody>
+</table>
+<p>
+ When replicating data using
+ <a href="https://www.artie.com/blogs/introduction-to-database-replication">
+  log-based replication
+ </a>
+ , losing your position in the transaction log can lead to two things:
+</p>
+<ol>
+ <li>
+  Database crashing due to storage overflow
+ </li>
+ <li>
+  Data loss as the logs have been purged
+ </li>
+</ol>
+<p>
+ To minimize risk of losing our place in the transaction logs, we leverage an external buffer and separate processes for reading and writing the logs (see sections below). We use Kafka as our external buffer.
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#using-kafka-as-on-external-buffer" id="using-kafka-as-on-external-buffer" title="Permalink">
+  #
+ </a>
+ Using Kafka as on external buffer
+</h3>
+<p>
+ As we mentioned, using the transaction logs as the buffer may lead to storage overflow issues if there are any errors with downstream data processing. As data folks know, inevitably there are errors that pop up. Additionally, using transaction logs as the buffer means that data processing cannot be partitioned and therefore cannot be parallelized, which is a big constraint when processing high volumes of data.
+</p>
+<p>
+ At Artie, we prefer to use Kafka as our external buffer to leverage:
+</p>
+<ul>
+ <li>
+  Data compression and compaction
+ </li>
+ <li>
+  Guaranteed ordering
+ </li>
+ <li>
+  Ability to parallelize processes by fine tuning topic partitions
+ </li>
+ <li>
+  Pub-Sub capability – ability to have different consumer groups (to support history tables for example) without having to publish the message to Kafka more than once
+ </li>
+ <li>
+  Telemetry (calculate lag by time and row count based on the offset)
+ </li>
+</ul>
+<p>
+ <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/not_all_cdc_pipelines_are_created_equal/architecture.png"/>
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#having-separate-processes-for-reading-and-writing" id="having-separate-processes-for-reading-and-writing" title="Permalink">
+  #
+ </a>
+ Having separate processes for reading and writing
+</h3>
+<p>
+ To create a more fault-tolerant architecture and avoid issues that arise from inevitable data processing errors, we decided to split reading and writing into separate processes (typically, DAGs or batched jobs are executed by a single process).
+</p>
+<p>
+ Reader subscribes to the source’s transaction logs, expresses each data mutation as a message, and publishes messages to Kafka
+Writer (Artie Transfer) consumes the data from Kafka and replicates the data to the destination
+By separating the two processes, we are able to accomplish the following:
+</p>
+<p>
+ Keep Reader’s logic to a minimum to reduce the amount of possible errors. This is important because Reader erroring out means the transaction log will start to build up.
+Defer complex logic to happen after the external buffer. This is beneficial because complex logic is more prone to errors - quite simply, by doing more things, more things can go wrong. Some complex logic that Artie Transfer handles include writing to destination tables, handling edge cases like TOAST columns, and parsing values to ensure data integrity of data type and precision.
+This all means that when data processing errors occur, we do not have problems with transaction log build-up or losing our position in the logs. For example, if there are connection issues and we are not able to write to the data warehouse, the logs continue to buffer in Kafka without impacting the source database. Artie Transfer will simply seek the previous offset and continue processing when we reconnect.
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#3-consistency-is-king-👑" id="3-consistency-is-king-👑" title="Permalink">
+  #
+ </a>
+ 3. Consistency is king 👑
+</h2>
+<p>
+ When there are errors related to data processing, data pipelines have two options:
+</p>
+<ol>
+ <li>
+  Skip and move on to keep the pipeline running
+ </li>
+ <li>
+  Hard fail and cause head-of-line blocking
+ </li>
+</ol>
+<p>
+ Majority of data pipelines default to (1) which leads to issues related to data consistency, like having missing rows. 
+For data pipelines that use transaction logs as the buffer, skipping errors and moving on is sometimes the logical solution to avoid risking
+ <a href="https://www.artie.com/blogs/preventing-wal-growth-on-postgres-db-running-on-aws-rds#:~:text=Replication%20slot%20overflow%20happens%20when,is%20due%20to%20AWS%20heartbeats.">
+  replication slot overflow
+ </a>
+ .
+</p>
+<p>
+ At Artie, we decided that low latency is meaningless without data consistency. This means we choose (2) and cause head-of-line blocking. 
+This means we have to deal with the headache of managing all the different edge cases and data types that could cause errors, but this also means that our customers do not have to deal with the overhead.
+</p>
+<p>
+ Examples of fun edge cases we have seen:
+</p>
+<ol>
+ <li>
+  Timestamp value where the year exceeds the YYYY format and causes downstream encoding issues
+ </li>
+ <li>
+  Negative years
+ </li>
+ <li>
+  Non JSON values in a JSONB column
+ </li>
+ <li>
+  JSON values that are not JSON compliant, like
+  <code>
+   {"foo": "bar", "foo": "bar"}
+  </code>
+ </li>
+</ol>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#4-minimize-data-indigestion" id="4-minimize-data-indigestion" title="Permalink">
+  #
+ </a>
+ 4. Minimize data indigestion
+</h2>
+<p>
+ What do we mean by data indigestion? Data pipelines inevitably run into errors such as message mismatches, networking errors, and many others that can cause blockage. 
+Due to our stance on hard failing on data indigestion errors, we have various features built into Artie to minimize manual overhead.
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#support-for-schema-evolution" id="support-for-schema-evolution" title="Permalink">
+  #
+ </a>
+ Support for schema evolution
+</h3>
+<p>
+ Whenever columns get added or removed from source tables, Artie automatically detects and applies the necessary changes to the destination.
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#adding-columns" id="adding-columns" title="Permalink">
+  #
+ </a>
+ Adding columns
+</h3>
+<p>
+ When we detect a new column, we either reference the source schema (if available), or we infer the data type from the first not-null value in the CDC event. 
+After determining the new column’s data type, we will then alter the table in your destination to add the new column(s).
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#dropping-columns" id="dropping-columns" title="Permalink">
+  #
+ </a>
+ Dropping columns
+</h3>
+<p>
+ By default, dropped columns will not be dropped in the destination to prevent downstream compilation issues or data loss. However, customers that want dropped columns to be dropped can opt-in to hard deletes, and Artie will automatically drop the column(s).
+</p>
+<p>
+ Dropping columns is a much harder problem to solve, especially because the operation is irreversible. If a column is accidentally dropped, that requires a full snapshot to get it back (which is extremely disruptive).
+</p>
+<h3>
+ <a aria-hidden="true" class="anchor-link" href="#schema-inference" id="schema-inference" title="Permalink">
+  #
+ </a>
+ Schema inference
+</h3>
+<p>
+ Inference is particularly useful for databases that do not provide a schema like MongoDB.
+</p>
+<p>
+ If we need to create a new column, we will look at the first not-null value and inspect its data type to create the column.
+</p>
+<p>
+ If the column already exists, Artie enables customers to control the destination schema. Once the column is created, Artie will look at the data type in the destination and automatically cast values to match. We will only hard fail if the values are incompatible with the new data type.
+</p>
+<p>
+ To get a sense of how this works, refer to the table below.
+</p>
+<table class="page-table">
+ <thead>
+  <tr>
+   <th>
+    Activity
+   </th>
+   <th>
+    Example
+   </th>
+   <th>
+    Supported
+   </th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td>
+    Change from closed to open data type
+   </td>
+   <td>
+    Go from
+    <strong>
+     BOOL
+    </strong>
+    to
+    <strong>
+     TEXT
+    </strong>
+   </td>
+   <td>
+    ✅
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Change from open to closed data type
+   </td>
+   <td>
+    Go from
+    <strong>
+     TEXT
+    </strong>
+    to
+    <strong>
+     BOOL
+    </strong>
+   </td>
+   <td>
+    🟠 Artie will try, but may fail if invalid values are passed in.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<p>
+ There are many nuances to building CDC pipelines. We designed Artie to tackle the common challenges in data replication and create a reliable solution by focusing on data consistency, minimizing data indigestion, and supporting schema evolution.
+</p>
+<p>
+ Book a
+ <a href="https://www.artie.com/contact">
+  demo
+ </a>
+ to learn more.
+</p>
