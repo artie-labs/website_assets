@@ -1,0 +1,174 @@
+<p>
+ Every company nowadays requires data to inform their business decisions. In order to have data be readily accessible and stored in one place, companies have to set up various data integration pipelines.
+</p>
+<p>
+ These are the main components within the data integration stack:
+</p>
+<ul>
+ <li>
+  <strong>
+   Data sources
+  </strong>
+  : this could be a service (internal or external), vendor, data management platforms, etc
+ </li>
+ <li>
+  <strong>
+   Data pipelines
+  </strong>
+  : to fetch data from various data sources and transfer them to the destination
+ </li>
+ <li>
+  <strong>
+   Data warehouse
+  </strong>
+  : to house and conduct queries  against the various data sources
+ </li>
+</ul>
+<p>
+ The traditional data integration architecture looks like this:
+</p>
+<ul>
+ <li>
+  Data pipelines
+  <strong>
+   extract
+  </strong>
+  data from the various sources
+ </li>
+ <li>
+  Data pipelines then
+  <strong>
+   transforms
+  </strong>
+  it into the specified format
+ </li>
+ <li>
+  Data pipelines then
+  <strong>
+   loads
+  </strong>
+  the transformed data into a data warehouse
+ </li>
+</ul>
+<p>
+ More recently, there has been a shift towards ELTs. With ELTs, the data integration architecture looks something like this:
+</p>
+<ul>
+ <li>
+  (unchanged) Data pipelines
+  <strong>
+   extract
+  </strong>
+  data from the various sources
+ </li>
+ <li>
+  Data pipelines
+  <strong>
+   load
+  </strong>
+  the raw dataset into the data warehouse
+ </li>
+ <li>
+  <strong>
+   Transformations
+  </strong>
+  are then done within the data warehouse
+ </li>
+</ul>
+<p>
+ <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/elts_are_here_to_stay/etl_elt.png"/>
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#what-are-some-examples-of-transformations" id="what-are-some-examples-of-transformations" title="Permalink">
+  #
+ </a>
+ What are some examples of transformations?
+</h2>
+<p>
+ Simplistically, transformations are any type of manipulation on the raw datasets to present a particular finding or view. Here are some examples of typical data transformations:
+</p>
+<ul>
+ <li>
+  Concatenation (such as combining columns and joining strings)
+ </li>
+ <li>
+  Upper / lower case values
+ </li>
+ <li>
+  Joining data sets
+ </li>
+ <li>
+  Numerical operations (multiply, divide, add, subtract, etc.)
+ </li>
+ <li>
+  Grouping data (by customer, by month, etc.)
+ </li>
+ <li>
+  Deduplicating data
+ </li>
+ <li>
+  Data obfuscation (scrubbing PII or credit card data)
+ </li>
+</ul>
+<p>
+ There are endless amounts of possible transforms. To get a better understanding of what additional transformations may look like,
+ <a href="https://docs.snowflake.com/en/sql-reference/functions-all.html">
+  check out all the Snowflake functions
+ </a>
+ !
+</p>
+<h2>
+ <a aria-hidden="true" class="anchor-link" href="#so,-why-are-elts-better" id="so,-why-are-elts-better" title="Permalink">
+  #
+ </a>
+ So, why are ELTs better?
+</h2>
+<ol>
+ <li>
+  Transformations are maintained by the team that works closer with the actual data
+ </li>
+ <li>
+  ELTs build upon a self-serve data culture and frees up engineering time
+ </li>
+ <li>
+  More ways to analyze the datasets
+ </li>
+</ol>
+<p>
+ <strong>
+  Transformations are maintained by the team that works closer with the actual data
+ </strong>
+</p>
+<p>
+ Transforms can be implemented in SQL or with dbt from the data warehouse, as opposed to custom scripts in the data pipeline. 
+This means that business analysis, data scientists, and others will be able to write their own transforms and maintain the definition.
+</p>
+<p>
+ <strong>
+  ELTs build upon a self-serve data culture and frees up engineering time
+ </strong>
+</p>
+<p>
+ With ELTs, the data team can write their own transformations and not have to rely on the engineering team to write custom scripts.
+</p>
+<p>
+ <strong>
+  More ways to analyze the datasets
+ </strong>
+</p>
+<p>
+ With the ETL approach, the process only outputs and uploads the transformed data set and is extremely rigid. 
+As a result of this, it prevents others from performing additional queries and masks the underlying tables that are referenced in the transformation.
+</p>
+<p>
+ Whereas with ELT, the raw data is loaded into the data warehouse and transformations are done within the data warehouse.
+</p>
+<p>
+ Artie Transfer helps companies adopt and supercharge ELT workflows by providing real-time data replication from transactional databases to your data warehouse.
+</p>
+<p>
+ <a href="https://artie.com/contact">
+  Contact us
+ </a>
+ if you're interested in learning more!
+</p>
