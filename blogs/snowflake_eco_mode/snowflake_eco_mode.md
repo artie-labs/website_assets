@@ -28,6 +28,7 @@ To get started, define peak and off-peak hours along with flush (sync frequency)
 </div>
 
 As a quick refresher, Artie flushes data based on three variables.
+
 1. Time 
 2. Bytes processed 
 3. Rows processed
