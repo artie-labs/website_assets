@@ -8,9 +8,7 @@ Every data mutation (insert, update, delete) will be recorded along with a times
 
 ## Example
 
-Imagine you have a `customers` table with id and name. If **history mode is enabled**, we will create a separate table called `customers__history `with additional columns:
-1. __db_updated_at
-2. __artie_operation
+Imagine you have a `customers` table with id and name. If **history mode is enabled**, we will create a separate table called `customers__history `with additional columns: `__db_updated_at`, `__artie_operation`.
 
 Assuming we ran this:
 
