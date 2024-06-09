@@ -1,567 +1,236 @@
-<p>
- Artie is a real-time database replication solution that leverages change data capture (CDC) and streams processing to enable sub-minute latency. 
-Today, Artie maintains a 1:1 copy of your source tables to your data warehouse.
-</p>
-<p>
- With History Table, Artie will create a separate table that stores all historical changes of your source. 
-Every data mutation (insert, update, delete) will be recorded along with a timestamp and the operation type.
-</p>
-<p>
- <img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/history_table/architecture.png"/>
-</p>
-<h2>
- <a aria-hidden="true" class="anchor-link" href="#example" id="example" title="Permalink">
-  #
- </a>
- Example
-</h2>
-<p>
- Imagine you have a
- <code>
-  customers
- </code>
- table with id and name. If
- <strong>
-  history mode is enabled
- </strong>
- , we will create a separate table called
- <code>
-  customers__history
- </code>
- with additional columns:
- <code>
-  __db_updated_at
- </code>
- ,
- <code>
-  __artie_operation
- </code>
- .
-</p>
-<p>
- Assuming we ran this:
-</p>
+<p>Artie is a real-time database replication solution that leverages change data capture (CDC) and streams processing to enable sub-minute latency. 
+Today, Artie maintains a 1:1 copy of your source tables to your data warehouse.</p>
+<p>With History Table, Artie will create a separate table that stores all historical changes of your source. 
+Every data mutation (insert, update, delete) will be recorded along with a timestamp and the operation type.</p>
+<p><img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/history_table/architecture.png"/></p>
+<h2><a aria-hidden="true" class="anchor-link" href="#example" id="example" title="Permalink">#</a>Example</h2>
+<p>Imagine you have a <code>customers</code> table with id and name. If <strong>history mode is enabled</strong>, we will create a separate table called <code>customers__history</code> with additional columns: <code>__db_updated_at</code>, <code>__artie_operation</code>.</p>
+<p>Assuming we ran this:</p>
 <pre>
 INSERT INTO customers (id, name) VALUES (1, 'Alice');
 INSERT INTO customers (id, name) VALUES (2, 'Bob');
 -- Updated Alice to include her last name
 UPDATE customers SET name = 'Alice Smith' WHERE id = 1;
 </pre>
-<p>
- The
- <code>
-  customers__history
- </code>
- table would then fill up with values as such:
-</p>
+<p>The <code>customers__history</code> table would then fill up with values as such:</p>
 <table class="page-table">
- <thead>
-  <tr>
-   <th>
-    id
-   </th>
-   <th>
-    name
-   </th>
-   <th>
-    __db_updated_at
-   </th>
-   <th>
-    __artie_operation
-   </th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-  </tr>
-  <tr>
-   <td>
-    2
-   </td>
-   <td>
-    Bob
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-  </tr>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice Smith
-   </td>
-   <td>
-    2021-01-01 00:01:23
-   </td>
-   <td>
-    UPDATE
-   </td>
-  </tr>
- </tbody>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>__db_updated_at</th>
+<th>__artie_operation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Alice</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Bob</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Alice Smith</td>
+<td>2021-01-01 00:01:23</td>
+<td>UPDATE</td>
+</tr>
+</tbody>
 </table>
-<h2>
- <a aria-hidden="true" class="anchor-link" href="#snapshots-vs-cdc" id="snapshots-vs-cdc" title="Permalink">
-  #
- </a>
- Snapshots vs CDC
-</h2>
-<p>
- A common way for companies to create variations of history tables is to perform regular snapshots of their current table. 
-An example could be to take a daily snapshot. However, an obvious downside is that
- <strong>
-  only daily changes are recorded and intraday changes are lost.
- </strong>
-</p>
-<p>
- One major benefit of leveraging CDC is that
- <strong>
-  every single mutation is captured,
- </strong>
- which provides a comprehensive view of all your data mutations.
-</p>
-<h2>
- <a aria-hidden="true" class="anchor-link" href="#what-are-slowly-changing-dimension-tables" id="what-are-slowly-changing-dimension-tables" title="Permalink">
-  #
- </a>
- What are slowly changing dimension tables?
-</h2>
-<p>
- As a brief overview, there are 4 types of Slowly Changing Dimension (SCD) Tables. SCDs are a common data warehousing design pattern used to manage and track changes in dimension data over time. 
-They are particularly useful for historical reporting and analysis.
-</p>
+<h2><a aria-hidden="true" class="anchor-link" href="#snapshots-vs-cdc" id="snapshots-vs-cdc" title="Permalink">#</a>Snapshots vs CDC</h2>
+<p>A common way for companies to create variations of history tables is to perform regular snapshots of their current table. 
+An example could be to take a daily snapshot. However, an obvious downside is that <strong>only daily changes are recorded and intraday changes are lost.</strong></p>
+<p>One major benefit of leveraging CDC is that <strong>every single mutation is captured,</strong> which provides a comprehensive view of all your data mutations.</p>
+<h2><a aria-hidden="true" class="anchor-link" href="#what-are-slowly-changing-dimension-tables" id="what-are-slowly-changing-dimension-tables" title="Permalink">#</a>What are slowly changing dimension tables?</h2>
+<p>As a brief overview, there are 4 types of Slowly Changing Dimension (SCD) Tables. SCDs are a common data warehousing design pattern used to manage and track changes in dimension data over time. 
+They are particularly useful for historical reporting and analysis.</p>
 <table class="page-table">
- <thead>
-  <tr>
-   <th>
-    Type
-   </th>
-   <th>
-    Summary
-   </th>
-   <th>
-    Use Case
-   </th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    When a change occurs, the existing record is updated with new information, which overwrites old data.
-   </td>
-   <td>
-    When historical data is not necessary.
-   </td>
-  </tr>
-  <tr>
-   <td>
-    2
-   </td>
-   <td>
-    A new record is created with updated values while keeping old records. Each record is tagged with version or effective dates to distinguish between the rows.
-   </td>
-   <td>
-    Used when it's important to preserve and maintain a full history of changes.
-   </td>
-  </tr>
-  <tr>
-   <td>
-    3
-   </td>
-   <td>
-    This table includes an additional column that stores the previous values.
-   </td>
-   <td>
-    Useful when it's necessary to track the current and immediate preceding value of an attribute.
-   </td>
-  </tr>
-  <tr>
-   <td>
-    4
-   </td>
-   <td>
-    Uses a separate table to store changes. The main table holds the current data while history table keeps a record of all changes.
-   </td>
-   <td>
-    Used when it's important to keep operational dim table lean and performant while still maintaining a detailed change history in a separate table.
-   </td>
-  </tr>
- </tbody>
+<thead>
+<tr>
+<th>Type</th>
+<th>Summary</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>When a change occurs, the existing record is updated with new information, which overwrites old data.</td>
+<td>When historical data is not necessary.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>A new record is created with updated values while keeping old records. Each record is tagged with version or effective dates to distinguish between the rows.</td>
+<td>Used when it's important to preserve and maintain a full history of changes.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>This table includes an additional column that stores the previous values.</td>
+<td>Useful when it's necessary to track the current and immediate preceding value of an attribute.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Uses a separate table to store changes. The main table holds the current data while history table keeps a record of all changes.</td>
+<td>Used when it's important to keep operational dim table lean and performant while still maintaining a detailed change history in a separate table.</td>
+</tr>
+</tbody>
 </table>
-<p>
- Using the prior example, this is what the different types of SCD would look like:
-</p>
-<h3>
- <a aria-hidden="true" class="anchor-link" href="#type-1" id="type-1" title="Permalink">
-  #
- </a>
- Type 1
-</h3>
+<p>Using the prior example, this is what the different types of SCD would look like:</p>
+<h3><a aria-hidden="true" class="anchor-link" href="#type-1" id="type-1" title="Permalink">#</a>Type 1</h3>
 <table class="page-table">
- <thead>
-  <tr>
-   <th>
-    id
-   </th>
-   <th>
-    name
-   </th>
-   <th>
-    __db_updated_at
-   </th>
-   <th>
-    __artie_operation
-   </th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice Smith
-   </td>
-   <td>
-    2021-01-01 00:01:23
-   </td>
-   <td>
-    UPDATE
-   </td>
-  </tr>
-  <tr>
-   <td>
-    2
-   </td>
-   <td>
-    Bob
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-  </tr>
- </tbody>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>__db_updated_at</th>
+<th>__artie_operation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Alice Smith</td>
+<td>2021-01-01 00:01:23</td>
+<td>UPDATE</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Bob</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+</tr>
+</tbody>
 </table>
-<h3>
- <a aria-hidden="true" class="anchor-link" href="#type-2" id="type-2" title="Permalink">
-  #
- </a>
- Type 2
-</h3>
+<h3><a aria-hidden="true" class="anchor-link" href="#type-2" id="type-2" title="Permalink">#</a>Type 2</h3>
 <table class="page-table">
- <thead>
-  <tr>
-   <th>
-    id
-   </th>
-   <th>
-    name
-   </th>
-   <th>
-    __db_updated_at
-   </th>
-   <th>
-    __artie_operation
-   </th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-  </tr>
-  <tr>
-   <td>
-    2
-   </td>
-   <td>
-    Bob
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-  </tr>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice Smith
-   </td>
-   <td>
-    2021-01-01 00:01:23
-   </td>
-   <td>
-    UPDATE
-   </td>
-  </tr>
- </tbody>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>__db_updated_at</th>
+<th>__artie_operation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Alice</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Bob</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Alice Smith</td>
+<td>2021-01-01 00:01:23</td>
+<td>UPDATE</td>
+</tr>
+</tbody>
 </table>
-<h3>
- <a aria-hidden="true" class="anchor-link" href="#type-3" id="type-3" title="Permalink">
-  #
- </a>
- Type 3
-</h3>
+<h3><a aria-hidden="true" class="anchor-link" href="#type-3" id="type-3" title="Permalink">#</a>Type 3</h3>
 <table class="page-table">
- <thead>
-  <tr>
-   <th>
-    id
-   </th>
-   <th>
-    name
-   </th>
-   <th>
-    __db_updated_at
-   </th>
-   <th>
-    __artie_operation
-   </th>
-   <th>
-    previous_name
-   </th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice Smith
-   </td>
-   <td>
-    2021-01-01 00:01:23
-   </td>
-   <td>
-    CREATE
-   </td>
-   <td>
-    Alice
-   </td>
-  </tr>
-  <tr>
-   <td>
-    2
-   </td>
-   <td>
-    Bob
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-   <td>
-   </td>
-  </tr>
- </tbody>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>__db_updated_at</th>
+<th>__artie_operation</th>
+<th>previous_name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Alice Smith</td>
+<td>2021-01-01 00:01:23</td>
+<td>CREATE</td>
+<td>Alice</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Bob</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+<td></td>
+</tr>
+</tbody>
 </table>
-<h3>
- <a aria-hidden="true" class="anchor-link" href="#type-4" id="type-4" title="Permalink">
-  #
- </a>
- Type 4
-</h3>
-<p>
- <code>
-  customers
- </code>
-</p>
+<h3><a aria-hidden="true" class="anchor-link" href="#type-4" id="type-4" title="Permalink">#</a>Type 4</h3>
+<p><code>customers</code></p>
 <table class="page-table">
- <thead>
-  <tr>
-   <th>
-    id
-   </th>
-   <th>
-    name
-   </th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice Smith
-   </td>
-  </tr>
-  <tr>
-   <td>
-    2
-   </td>
-   <td>
-    Bob
-   </td>
-  </tr>
- </tbody>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Alice Smith</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Bob</td>
+</tr>
+</tbody>
 </table>
-<p>
- <code>
-  customers__history
- </code>
-</p>
+<p><code>customers__history</code></p>
 <table class="page-table">
- <thead>
-  <tr>
-   <th>
-    id
-   </th>
-   <th>
-    name
-   </th>
-   <th>
-    __db_updated_at
-   </th>
-   <th>
-    __artie_operation
-   </th>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-  </tr>
-  <tr>
-   <td>
-    2
-   </td>
-   <td>
-    Bob
-   </td>
-   <td>
-    2021-01-01 00:00:00
-   </td>
-   <td>
-    CREATE
-   </td>
-  </tr>
-  <tr>
-   <td>
-    1
-   </td>
-   <td>
-    Alice Smith
-   </td>
-   <td>
-    2021-01-01 00:01:23
-   </td>
-   <td>
-    UPDATE
-   </td>
-  </tr>
- </tbody>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>__db_updated_at</th>
+<th>__artie_operation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Alice</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Bob</td>
+<td>2021-01-01 00:00:00</td>
+<td>CREATE</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Alice Smith</td>
+<td>2021-01-01 00:01:23</td>
+<td>UPDATE</td>
+</tr>
+</tbody>
 </table>
-<h2>
- <a aria-hidden="true" class="anchor-link" href="#artie-leverages-scd-type-4-for-simplicity-and-performance" id="artie-leverages-scd-type-4-for-simplicity-and-performance" title="Permalink">
-  #
- </a>
- Artie leverages SCD Type 4 for simplicity and performance
-</h2>
-<p>
- Our initial launch of history table will support SCD Type 4, which is extremely useful when organizations need to balance fast access to current data with the need to maintain a detailed history of changes.
-</p>
-<p>
- By maintaining a separate history table, SCD Type 4 ensures all historical data is preserved for detailed historical analysis without impacting the performance of the main current table. Queries against the current table will remain fast and efficient. In addition, this will keep it straightforward for customers to access current data, without having to filter through historical records and materialize the most current view. Since changes are tracked explicitly in a separate table, SCD Type 4 also reduces the risk of accidental data loss due to overwrites, which can happen in SCD Type 1.
-</p>
-<h2>
- <a aria-hidden="true" class="anchor-link" href="#examples" id="examples" title="Permalink">
-  #
- </a>
- Examples
-</h2>
-<p>
- <strong>
-  Ecommerce company tracking price trends and inventory management
- </strong>
-</p>
-<p>
- Waves R Us sells beach toys. They have an inventory table that contains product information and available units. 
-They use history mode to analyze their previous inventory levels to forecast seasonality with the goal of figuring out the optimal inventory levels per product.
-</p>
-<p>
- <strong>
-  Fintech company tracking financial health to predict delinquency rates
- </strong>
-</p>
-<p>
- Instant Loans 4 U leverages history tables to track consumer credit scores, loan statuses and account balances over time to model probability of delinquency rates when it provides loans to consumers.
-</p>
-<p>
- <strong>
-  Subscription company tracking user status and preference changes
- </strong>
-</p>
-<p>
- Live Elixirs is a subscription service for longevity elixirs. Live Elixirs leverages history tables to:
+<h2><a aria-hidden="true" class="anchor-link" href="#artie-leverages-scd-type-4-for-simplicity-and-performance" id="artie-leverages-scd-type-4-for-simplicity-and-performance" title="Permalink">#</a>Artie leverages SCD Type 4 for simplicity and performance</h2>
+<p>Our initial launch of history table will support SCD Type 4, which is extremely useful when organizations need to balance fast access to current data with the need to maintain a detailed history of changes.</p>
+<p>By maintaining a separate history table, SCD Type 4 ensures all historical data is preserved for detailed historical analysis without impacting the performance of the main current table. Queries against the current table will remain fast and efficient. In addition, this will keep it straightforward for customers to access current data, without having to filter through historical records and materialize the most current view. Since changes are tracked explicitly in a separate table, SCD Type 4 also reduces the risk of accidental data loss due to overwrites, which can happen in SCD Type 1.</p>
+<h2><a aria-hidden="true" class="anchor-link" href="#use-cases" id="use-cases" title="Permalink">#</a>Use cases</h2>
+<p><strong>Ecommerce company tracking price trends and inventory management</strong></p>
+<p>Waves R Us sells beach toys. They have an inventory table that contains product information and available units. 
+They use history mode to analyze their previous inventory levels to forecast seasonality with the goal of figuring out the optimal inventory levels per product.</p>
+<p><strong>Fintech company tracking financial health to predict delinquency rates</strong></p>
+<p>Instant Loans 4 U leverages history tables to track consumer credit scores, loan statuses and account balances over time to model probability of delinquency rates when it provides loans to consumers.</p>
+<p><strong>Subscription company tracking user status and preference changes</strong></p>
+<p>Live Elixirs is a subscription service for longevity elixirs. Live Elixirs leverages history tables to:
 1. Understand customer taste preferences over time in order to improve their product
-2. Understand subscription trends so they can predict and reduce churn
-</p>
-<h3>
- <a aria-hidden="true" class="anchor-link" href="#sign-up-to-try-artie's-history-tables" id="sign-up-to-try-artie's-history-tables" title="Permalink">
-  #
- </a>
- Sign up to try Artie's history tables
-</h3>
-<p>
- Artie Cloud now has a one-click option to enable history tables. Customers can do this within the table list view.
-</p>
-<p>
- <a href="https://www.artie.com/contact">
-  Contact us
- </a>
- if you're interested in trying Artie's history table.
-</p>
-<p>
- <img alt="img_1.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/history_table/history_mode.png"/>
-</p>
+2. Understand subscription trends so they can predict and reduce churn</p>
+<h3><a aria-hidden="true" class="anchor-link" href="#sign-up-to-try-artie's-history-tables" id="sign-up-to-try-artie's-history-tables" title="Permalink">#</a>Sign up to try Artie's history tables</h3>
+<p>Artie Cloud now has a one-click option to enable history tables. Customers can do this within the table list view.</p>
+<p><a href="https://www.artie.com/contact">Contact us</a> if you're interested in trying Artie's history table.</p>
+<p><img alt="img_1.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/history_table/history_mode.png"/></p>

@@ -8,7 +8,7 @@ Every data mutation (insert, update, delete) will be recorded along with a times
 
 ## Example
 
-Imagine you have a `customers` table with id and name. If **history mode is enabled**, we will create a separate table called `customers__history `with additional columns: `__db_updated_at`, `__artie_operation`.
+Imagine you have a `customers` table with id and name. If **history mode is enabled**, we will create a separate table called `customers__history` with additional columns: `__db_updated_at`, `__artie_operation`.
 
 Assuming we ran this:
 
@@ -98,7 +98,7 @@ Our initial launch of history table will support SCD Type 4, which is extremely 
 
 By maintaining a separate history table, SCD Type 4 ensures all historical data is preserved for detailed historical analysis without impacting the performance of the main current table. Queries against the current table will remain fast and efficient. In addition, this will keep it straightforward for customers to access current data, without having to filter through historical records and materialize the most current view. Since changes are tracked explicitly in a separate table, SCD Type 4 also reduces the risk of accidental data loss due to overwrites, which can happen in SCD Type 1.
 
-## Examples
+## Use cases
 
 **Ecommerce company tracking price trends and inventory management**
 
