@@ -30,9 +30,9 @@ The `customers__history` table would then fill up with values as such:
 ## Snapshots vs CDC
 
 A common way for companies to create variations of history tables is to perform regular snapshots of their current table. 
-An example could be to take a daily snapshot. However, an obvious downside is that **only daily changes are recorded and intraday changes are lost**.
+An example could be to take a daily snapshot. However, an obvious downside is that **only daily changes are recorded and intraday changes are lost.**
 
-One major benefit of leveraging CDC is that **every single mutation is captured**, which provides a comprehensive view of all your data mutations.
+One major benefit of leveraging CDC is that **every single mutation is captured,** which provides a comprehensive view of all your data mutations.
 
 ## What are slowly changing dimension tables?
 

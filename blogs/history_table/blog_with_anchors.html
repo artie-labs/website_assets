@@ -126,16 +126,15 @@ UPDATE customers SET name = 'Alice Smith' WHERE id = 1;
  A common way for companies to create variations of history tables is to perform regular snapshots of their current table. 
 An example could be to take a daily snapshot. However, an obvious downside is that
  <strong>
-  only daily changes are recorded and intraday changes are lost
+  only daily changes are recorded and intraday changes are lost.
  </strong>
- .
 </p>
 <p>
  One major benefit of leveraging CDC is that
  <strong>
-  every single mutation is captured
+  every single mutation is captured,
  </strong>
- , which provides a comprehensive view of all your data mutations.
+ which provides a comprehensive view of all your data mutations.
 </p>
 <h2>
  <a aria-hidden="true" class="anchor-link" href="#what-are-slowly-changing-dimension-tables" id="what-are-slowly-changing-dimension-tables" title="Permalink">

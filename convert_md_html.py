@@ -55,7 +55,7 @@ def convert_markdown_to_html(input_file):
         # Following: https://gist.github.com/jcubic/a8b8c979d200ffde13cc08505f7a6436
         img['src'] = f"https://cdn.jsdelivr.net/gh/artie-labs/website_assets/{directory}/{original_src}"
 
-    return soup.prettify(formatter=lambda s: s.replace("\n\n\n", "\n\n"))
+    return soup.prettify(formatter="html")
 
 
 def write_html_to_file(html_content, output_file):

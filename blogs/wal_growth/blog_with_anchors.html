@@ -1,13 +1,13 @@
 <p>
  From working with Postgres on AWS RDS, we have noticed that idle or dev databases will occasionally experience replication slot overflow and cause issues with customers. 
-It’s also happened to us while testing out CDC pipelines. We wrote this guide to describe why this issue happens and how to prevent replication slot overflow.
+It&rsquo;s also happened to us while testing out CDC pipelines. We wrote this guide to describe why this issue happens and how to prevent replication slot overflow.
 </p>
 <p>
  Artie Cloud customers can avoid replication slot overflow for low traffic databases by enabling heartbeats on the dashboard.
 </p>
 <p>
- For anyone using Postgres on AWS RDS, it’s possible you’ve run into the scenario of an idle or unused dev database suddenly running out of memory and causing replication slot overflow. 
-All of a sudden you’re up in the middle of the night trying to debug the issue and understand why your database is down and why your database storage is full.
+ For anyone using Postgres on AWS RDS, it&rsquo;s possible you&rsquo;ve run into the scenario of an idle or unused dev database suddenly running out of memory and causing replication slot overflow. 
+All of a sudden you&rsquo;re up in the middle of the night trying to debug the issue and understand why your database is down and why your database storage is full.
 </p>
 <h2>
  <a aria-hidden="true" class="anchor-link" href="#what-is-causing-replication-slots-to-overflow" id="what-is-causing-replication-slots-to-overflow" title="Permalink">
@@ -16,11 +16,11 @@ All of a sudden you’re up in the middle of the night trying to debug the issue
  What is causing replication slots to overflow?
 </h2>
 <p>
- When doing anything related to CDC (change data capture), a replication slot in Postgres is created. For Postgres specifically, CDC events are recorded and stored in the database’s WAL (write-ahead logging). 
-WAL exists to ensure data integrity and log the records describing the changes. It’s also helpful for downstream applications to subscribe to and consume CDC events reliably.
+ When doing anything related to CDC (change data capture), a replication slot in Postgres is created. For Postgres specifically, CDC events are recorded and stored in the database&rsquo;s WAL (write-ahead logging). 
+WAL exists to ensure data integrity and log the records describing the changes. It&rsquo;s also helpful for downstream applications to subscribe to and consume CDC events reliably.
 </p>
 <p>
- Replication slot overflow happens when the WAL accumulates and grows, consumes all your database’s memory, and causes your database to go down. But, why does this happen to idle/unused databases?
+ Replication slot overflow happens when the WAL accumulates and grows, consumes all your database&rsquo;s memory, and causes your database to go down. But, why does this happen to idle/unused databases?
 </p>
 <p>
  The
@@ -105,18 +105,10 @@ UPDATE test_heartbeat_table set ts = now() where id = '1';
   to prevent long-running queries
  </li>
  <li>
-  Configure
-  <code>
-   max_slot_wal_keep_size
-  </code>
-  to prevent replication slot overflow.
+  Configure <code>max_slot_wal_keep_size</code> to prevent replication slot overflow.
   <ul>
    <li>
-    Each file size is 64mb, so if you want to keep 1GB, then you should set this to be
-    <code>
-     16
-    </code>
-    .
+    If units are not specified, the values will be in megabytes.
    </li>
    <li>
     If the replication slot size is reached, the slot will be automatically dropped to protect the database from crashing.
@@ -136,7 +128,7 @@ SELECT
   query,
   state
 FROM pg_stat_activity
-WHERE (now() - pg_stat_activity.query_start) > interval '1 minute';
+WHERE (now() - pg_stat_activity.query_start) &gt; interval '1 minute';
 </pre>
 <p>
  <strong>

@@ -47,9 +47,8 @@ UPDATE test_heartbeat_table set ts = now() where id = '1';
 * Query `pg_locks` to identify if any locks are being held for a long time
 * Set `statement_timeout` and `idle_in_transaction_session_timeout` to prevent long-running queries
 * Configure `max_slot_wal_keep_size` to prevent replication slot overflow.
-    * Each file size is 64mb, so if you want to keep 1GB, then you should set this to be `16`.
+    * If units are not specified, the values will be in megabytes.
     * If the replication slot size is reached, the slot will be automatically dropped to protect the database from crashing.
-
 
 **Identify long-running queries:**
 <pre>
