@@ -39,7 +39,7 @@ def convert_markdown_to_html(input_file):
         anchor_tag.string = '#'  # This will be the text for the anchor link
         header.insert(0, anchor_tag)  # Insert the anchor tag at the beginning of the header
 
-# Update all the images
+    # Update all the images
     # This converts rel and abs path into rel path
     directory = os.path.dirname(input_file)
     directory_parts = directory.split('/')

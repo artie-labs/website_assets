@@ -6,12 +6,10 @@ Every data mutation (insert, update, delete) will be recorded along with a times
 <h2><a aria-hidden="true" class="anchor-link" href="#example" id="example" title="Permalink">#</a>Example</h2>
 <p>Imagine you have a <code>customers</code> table with id and name. If <strong>history mode is enabled</strong>, we will create a separate table called <code>customers__history</code> with additional columns: <code>__db_updated_at</code>, <code>__artie_operation</code>.</p>
 <p>Assuming we ran this:</p>
-<pre>
-INSERT INTO customers (id, name) VALUES (1, 'Alice');
+<pre><code class="language-sql">INSERT INTO customers (id, name) VALUES (1, 'Alice');
 INSERT INTO customers (id, name) VALUES (2, 'Bob');
 -- Updated Alice to include her last name
-UPDATE customers SET name = 'Alice Smith' WHERE id = 1;
-</pre>
+UPDATE customers SET name = 'Alice Smith' WHERE id = 1;</code></pre>
 <p>The <code>customers__history</code> table would then fill up with values as such:</p>
 <table class="page-table">
 <thead>

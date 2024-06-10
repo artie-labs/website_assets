@@ -12,12 +12,10 @@ Imagine you have a `customers` table with id and name. If **history mode is enab
 
 Assuming we ran this:
 
-<pre>
-INSERT INTO customers (id, name) VALUES (1, 'Alice');
+<pre><code class="language-sql">INSERT INTO customers (id, name) VALUES (1, 'Alice');
 INSERT INTO customers (id, name) VALUES (2, 'Bob');
 -- Updated Alice to include her last name
-UPDATE customers SET name = 'Alice Smith' WHERE id = 1;
-</pre>
+UPDATE customers SET name = 'Alice Smith' WHERE id = 1;</code></pre>
 
 The `customers__history` table would then fill up with values as such:
 
