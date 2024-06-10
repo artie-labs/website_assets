@@ -1,0 +1,8 @@
+beautifulsoup4==4.12.3
+bs4==0.0.2
+csscompressor==0.9.5
+htmlmin==0.1.12
+jsmin==3.0.1
+Markdown==3.6
+pillow==10.3.0
+soupsieve==2.5
