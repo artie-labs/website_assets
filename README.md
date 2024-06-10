@@ -9,6 +9,15 @@ using these classes:
 * img-medium
 * img-large
 
+### Code blocks
+
+To use code blocks, we're using Prism. To do the conversion, write code blocks in markdown as such:
+```md
+<pre><code class="language-sql">SELECT * FROM foo;
+SELECT * FROM bar;</code></pre>
+
+```
+
 ### Extras:
 
 * Whenever possible, let's convert images to webp format, this will help with page load times. We have a script for

@@ -27,17 +27,13 @@ Heartbeats are not observed by most CDC applications, so it doesn't get processe
 If you are using Debezium to read CDC logs from the WAL, you can turn on the heartbeats feature. 
 You have to first create a `heartbeat_table` in the idle/low traffic database and Debezium will periodically ping the database with an update, which will create a CDC event and prevent WAL growth.
 
-<pre>
--- Creating a heartbeats table
+<pre><code class="language-sql">-- Creating a heartbeats table
 CREATE TABLE test_heartbeat_table (id text PRIMARY KEY, ts timestamp);
 -- Insert one row so subsequent updates will create a CDC event
-INSERT INTO test_heartbeat_table (id, ts) VALUES (1, NOW());
-</pre>
+INSERT INTO test_heartbeat_table (id, ts) VALUES (1, NOW());</code></pre>
 
 When heartbeats are enabled, Artie will then periodically issue this command to advance the replication slot.
-<pre>
-UPDATE test_heartbeat_table set ts = now() where id = '1';
-</pre>
+<pre><code class="language-sql">UPDATE test_heartbeat_table set ts = now() where id = '1';</code></pre>
 
 ## Other best practices to consider
 
@@ -51,17 +47,13 @@ UPDATE test_heartbeat_table set ts = now() where id = '1';
     * If the replication slot size is reached, the slot will be automatically dropped to protect the database from crashing.
 
 **Identify long-running queries:**
-<pre>
-SELECT
+<pre><code class="language-sql">SELECT
   pid,
   now() - pg_stat_activity.query_start AS duration,
   query,
   state
 FROM pg_stat_activity
-WHERE (now() - pg_stat_activity.query_start) > interval '1 minute';
-</pre>
+WHERE (now() - pg_stat_activity.query_start) > interval '1 minute';</code></pre>
 
 **Identify any locks:**
-<pre>
-SELECT * FROM pg_locks;
-</pre>
+<pre><code class="language-sql">SELECT * FROM pg_locks;</code></pre>
