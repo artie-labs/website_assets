@@ -164,7 +164,7 @@ reasons:
 
 **Scenario 1: you don't want to deal with TOAST columns**
 
-In a nutshell, TOAST columns are large columns where the values will not be written to WAL if the values did not change.
+In a nutshell, [TOAST columns](https://debezium.io/blog/2019/10/08/handling-unchanged-postgres-toast-values/) are large columns where the values will not be written to WAL if the values did not change.
 This then means that your downstream application needs to understand the TOASTED value placeholder and handle it
 accordingly.
 
@@ -218,5 +218,5 @@ The actual incremental load depends on:
   increase load.
 * How wide the columns are and whether there are a lot of TOASTed columns.
 
-Click here to see benchmark data from Xata.
+[Click here](https://xata.io/blog/replica-identity-full-performance#benchmarking) to see benchmark data from Xata.
 

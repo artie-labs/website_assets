@@ -1,0 +1,189 @@
+<h2><a aria-hidden="true" class="anchor-link" href="#intro" id="intro" title="Permalink">#</a>Intro</h2>
+<p>This is the first part of our deep dive into Postgres logical replication. In this part, we will focus on
+the <code>REPLICA IDENTITY</code> property of a table and how it affects logical replication.</p>
+<h2><a aria-hidden="true" class="anchor-link" href="#table-replica-identity" id="table-replica-identity" title="Permalink">#</a>Table replica identity</h2>
+<p>Postgres tables require a replica identity to be configured in order to capture the changes made to the table.
+Replica identity specifies the <strong>type of information written to the write-ahead log</strong> with respect to what the
+<strong>previous values were</strong>.</p>
+<p>By default, replica identity will use the table's primary keys as the identifiers.</p>
+<p>Our goal with this blog post is to demystify the concept of replica identity and explain why you would
+want to alter your replica identity in certain situations. We also discuss performance implications and other factors to consider.</p>
+<h2><a aria-hidden="true" class="anchor-link" href="#components-required-for-logical-replication" id="components-required-for-logical-replication" title="Permalink">#</a>Components required for logical replication</h2>
+<p>The key components to logical replication:</p>
+<ol>
+<li>Table replica identity</li>
+<li>Write-ahead logs</li>
+<li>Replication slots</li>
+<li>Publications</li>
+</ol>
+<p><img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/logical_replication/img.png"/></p>
+<p>Notes:</p>
+<ul>
+<li>Replica identity will tell us what previous values to record</li>
+<li>Replication slots will monitor and record their own position within the WAL files</li>
+<li>An application will then need both a <strong>replication slot</strong> and a <strong>publication</strong> to start consuming changes from logical
+  replication.</li>
+</ul>
+<table class="page-table">
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Write-ahead logs</td>
+<td>Postgres uses write-ahead logs (WAL) internally to record every database transaction. You can control how much information is written by toggling <code>WAL_LEVEL</code>, which we will cover in another blog post.</td>
+</tr>
+<tr>
+<td>Publication</td>
+<td>A publication is a collection of tables that you want to replicate. Changes made to those tables are then captured and sent to subscribers. <br/> You can create a publication with the <code>CREATE PUBLICATION</code> command.</td>
+</tr>
+</tbody>
+</table>
+<h2><a aria-hidden="true" class="anchor-link" href="#what-are-valid-values-to-use-for-replica-identity" id="what-are-valid-values-to-use-for-replica-identity" title="Permalink">#</a>What are valid values to use for replica identity?</h2>
+<p>You can change a table's replica identity by running a command like this:</p>
+<pre><code class="language-sql">ALTER TABLE table REPLICA IDENTITY value;</code></pre>
+<p>The valid settings are:</p>
+<ol>
+<li><code>DEFAULT</code></li>
+<li><code>USING INDEX index_name</code> (must be unique)</li>
+<li><code>FULL</code></li>
+<li><code>NOTHING</code></li>
+</ol>
+<p>For this section, we are using this as the example.</p>
+<pre><code class="language-sql">CREATE TABLE customers (
+    id integer DEFAULT nextval('inventory.customers_id_seq'::regclass) PRIMARY KEY,
+    first_name character varying(255) NOT NULL,
+    last_name character varying(255) NOT NULL,
+    email character varying(255) NOT NULL UNIQUE
+);
+
+CREATE UNIQUE INDEX customers_email_key ON inventory.customers(email text_ops);
+
+INSERT INTO customers (id, first_name, last_name, email) VALUES (1001, 'Sally', 'Thomas', 'sally.thomas@acme.com');
+
+UPDATE customers SET first_name = 'Sally #2', last_name = 'Thomas #2' where id = 1001;</code></pre>
+<h3><a aria-hidden="true" class="anchor-link" href="#default" id="default" title="Permalink">#</a>Default</h3>
+<p>The default replica identity is the primary key(s) of the table. If you are trying to replicate a table that does not
+have primary key(s), you can either alter the table to add keys (see our
+guide <a href="https://docs.artie.com/tutorials/tables-without-primary-key-s">here</a>), or you can modify the replica identity
+to be <code>FULL</code>.</p>
+<p><strong>Kafka message produced by Debezium</strong></p>
+<p>Partition Key:</p>
+<pre><code class="language-json">{"payload":{"id":1001}}</code></pre>
+<p>Message:</p>
+<pre><code class="language-json">{
+    "payload": {
+        "before": null,
+        "after": {
+            "id": 1001,
+            "first_name": "Sally #2",
+            "last_name": "Thomas #2",
+            "email": "sally.thomas@acme.com"
+        },
+        "op": "u",
+        "ts_ms": 1716575453417,
+        "transaction": null
+    }
+}</code></pre>
+<h3><a aria-hidden="true" class="anchor-link" href="#using-index-index_name" id="using-index-index_name" title="Permalink">#</a>USING INDEX index_name</h3>
+<p>The <code>USING INDEX</code> replica identity will capture the columns of the index you specify. The index must be unique and its columns must be <code>NOT NULL</code>.</p>
+<p><strong>Kafka message produced by Debezium</strong></p>
+<p>Partition Key:</p>
+<pre><code class="language-json">{"email":"sally.thomas@acme.com"}</code></pre>
+<p>Message:</p>
+<pre><code class="language-json">{
+    "payload": {
+        "before": null,
+        "after": {
+            "id": 1001,
+            "first_name": "Sally #2",
+            "last_name": "Thomas #2",
+            "email": "sally.thomas@acme.com"
+        },
+        "op": "u",
+        "ts_ms": 1716575622471,
+        "transaction": null
+    }
+}</code></pre>
+<h3><a aria-hidden="true" class="anchor-link" href="#full" id="full" title="Permalink">#</a>Full</h3>
+<p>The <code>FULL</code> replica identity will capture all the columns of the table.</p>
+<p><strong>Kafka message produced by Debezium</strong></p>
+<p>Partition Key:</p>
+<pre><code class="language-json">{"payload":{"id":1001}}</code></pre>
+<p>Message:</p>
+<pre><code class="language-json">{
+    "payload": {
+        "before": {
+            "id": 1001,
+            "first_name": "Sally",
+            "last_name": "Thomas",
+            "email": "sally.thomas@acme.com"
+        },
+        "after": {
+            "id": 1001,
+            "first_name": "Sally #2",
+            "last_name": "Thomas #2",
+            "email": "sally.thomas@acme.com"
+        },
+        "op": "u",
+        "ts_ms": 1716575379815,
+        "transaction": null
+    }
+}</code></pre>
+<h3><a aria-hidden="true" class="anchor-link" href="#nothing" id="nothing" title="Permalink">#</a>Nothing</h3>
+<p>The <code>NOTHING</code> replica identity will not capture any columns of the table. This will cause an error when you try to update
+a table with this replica identity.</p>
+<pre><code class="language-sql">ERROR:  cannot update table "customers" because it does not have a replica identity and publishes updates</code></pre>
+<h2><a aria-hidden="true" class="anchor-link" href="#why-would-you-consider-changing-the-table's-replica-identity" id="why-would-you-consider-changing-the-table's-replica-identity" title="Permalink">#</a>Why would you consider changing the table's replica identity?</h2>
+<p>The main use case for changing replica identity is to change from <code>DEFAULT → FULL</code>. You would typically do this for two
+reasons:</p>
+<ol>
+<li>You don't want to deal with TOAST columns</li>
+<li>You need the previous row value</li>
+</ol>
+<p><strong>Scenario 1: you don't want to deal with TOAST columns</strong></p>
+<p>In a nutshell, <a href="https://debezium.io/blog/2019/10/08/handling-unchanged-postgres-toast-values/">TOAST columns</a> are large columns where the values will not be written to WAL if the values did not change.
+This then means that your downstream application needs to understand the TOASTED value placeholder and handle it
+accordingly.</p>
+<p><em>For Artie customers, we automatically detect and handle this by adding conditional update clauses.</em></p>
+<p>If you’re not using Artie, you can handle TOAST columns by doing something like this:</p>
+<pre><code class="language-sql">UPDATE target t SET t.toast_column = s.toast_column FROM staging as s WHERE t.id = s.id;</code></pre>
+<p><em>To handle a TOAST column, we leverage CASE statements.</em></p>
+<pre><code class="language-sql">UPDATE target t
+SET t.toast_column = CASE
+WHEN ( s.toast_column != 'TOASTED_VALUE_PLACEHOLDER' )
+THEN s.toast_column ELSE t.toast_column
+END
+FROM staging AS s
+WHERE t.id = s.id;</code></pre>
+<p><strong>Scenario 2: you need the previous row value</strong></p>
+<p>One common reason we change replica identity to <code>FULL</code> at Artie is that we need the previous values in order to replicate a deleted row to a downstream table that has cluster keys specified.</p>
+<p>For example, you may have a table called <code>accounts</code>, and in Snowflake the table is clustered by <code>DATE_TRUNC('day', created_at)</code>. We will need the <code>created_at</code> for the previous row if we want to replicate a <code>DELETE</code> event.</p>
+<p><strong>Workaround</strong></p>
+<p>If you need <code>created_at</code> and don't want to change the replica identity, you can add <code>created_at</code> to be part of the table's primary key.</p>
+<pre><code class="language-sql">ALTER TABLE customers DROP CONSTRAINT customers_pkey; 
+ALTER TABLE customers ADD PRIMARY KEY (id, created_at);</code></pre>
+<p></p>
+<p>This is a great workaround for tables that have a lot of TOAST columns.</p>
+<h2><a aria-hidden="true" class="anchor-link" href="#impact-on-performance" id="impact-on-performance" title="Permalink">#</a>Impact on performance</h2>
+<p>TL;DR -</p>
+<ul>
+<li>Changing table replica identity from <code>DEFAULT → FULL</code> on a table-by-table basis is mostly fine.</li>
+<li>You should expect some increase to your database CPU with <code>FULL</code> replica identity.</li>
+</ul>
+<p>By setting replica identity to <code>FULL</code>:</p>
+<ol>
+<li>There will be more information written into WAL files, which may increase your disk usage. That being said, WAL files
+   are temporary since they are periodically purged, so the increase in disk usage is temporary.</li>
+<li>There will be more load on the network to propagate WAL to the replicas and subscribers, which may increase your CPU.</li>
+</ol>
+<p>The actual incremental load depends on:</p>
+<ul>
+<li>The volume and distribution between <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code> events. <code>INSERT</code> doesn't have previous data, so it would not
+  increase load.</li>
+<li>How wide the columns are and whether there are a lot of TOASTed columns.</li>
+</ul>
+<p><a href="https://xata.io/blog/replica-identity-full-performance#benchmarking">Click here</a> to see benchmark data from Xata.</p>
