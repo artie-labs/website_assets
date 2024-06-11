@@ -1,7 +1,8 @@
 Tatango, a SMS and MMS marketing software provider that accelerates fundraising for nonprofit organizations, chose Artie to replicate data from Postgres to Redshift. Tatango processes more than a billion Postgres records per month and Artie was the only vendor that satisfied Tatango’s requirements for low latency and high availability. Adopting Artie has enabled access to real-time message sending data which powers accurate billing and customer-facing campaign metrics.
 
 > The product and engineering teams at Tatango are able to provide near real-time sending and performance related analytics to our customers, enabling them to focus on what matters most; raising donations.
-> <br/>-- <cite>Matt Powers, CTO at Tatango</cite>
+>
+> <cite>-- Matt Powers, CTO at Tatango</cite>
 
 # Key Takeaways
 

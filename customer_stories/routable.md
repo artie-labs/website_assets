@@ -1,7 +1,8 @@
 Routable, an accounts payable software provider, uses Artie to sync financial transactions and other production data from Postgres to Redshift in real-time. With Artie, Routable’s Risk and Compliance team is catching fraudulent transactions more effectively, enabling the whole organization to have higher confidence in rolling out innovative products like Instant Pay, helping their customers get paid faster.
 
 > Discovering Artie has been a game-changer in our data management strategy. In an arena where real-time access to data can define market leadership, their tool bridges the gap between our database and data warehouse with seamless, zero-latency synchronization. For a company that's just started its journey, Artie is already setting benchmarks that rivals like Fivetran and Airbyte should watch. An essential tool for anyone serious about making data-driven decisions at the speed of now.
-> <br/>-- <cite>Jason Hodson, Director of Data & Analytics at Routable</cite>
+>
+> <cite>-- Jason Hodson, Director of Data & Analytics at Routable</cite>
 
 # Key Takeaways
 
@@ -34,6 +35,8 @@ Onboarding new infrastructure tools often comes with disruption to the organizat
 > Artie has fundamentally changed the risk/reward on our Instant Pay product. The company had wanted to roll this feature out to more geographies, and now we have the confidence to do so.
 
 Artie has been game changing to Routable’s Risk and Compliance organization. **Transactions that used to take up to an hour to detect and block are now stopped within minutes**. This has resulted in a **reduction in losses from fraud**. With Artie, the company has the confidence to further roll out their Instant Pay product to other geographies, allowing customers all over the world to get paid faster.
+
+<br/><br/>
 
 **About Artie:** Artie is a real-time data replication solution for databases and data warehouses. Artie leverages change data capture (CDC) and stream processing to perform data syncs in a more reliable and cost efficient way. With Artie, any company can set up streaming pipelines in minutes without coding.
 

@@ -1,7 +1,8 @@
 Substack, a leading subscription network, significantly improved its decision-making velocity and data replication efficiency by adopting Artie, a cutting edge change data capture (CDC) streaming solution. Adopting Artie has enabled faster analytics, streamlined operations, and improved business productivity.
 
 > Internal sentiment is extremely positive. Our A/B testing framework measures much faster and we have higher data integrity now. This means the whole company can move faster and make decisions quicker. Artie is business critical and our day to day would be significantly tougher without it.
-> <br/>-- <cite>Mike Cohen, Head of Data at Substack</cite>
+>
+> <cite>-- Mike Cohen, Head of Data at Substack</cite>
 
 # Key Takeaways
 * Substack wanted a CDC streaming solution to replicate data from Postgres to Snowflake as fast as possible, without putting any strain on database infrastructure. They needed a reliable solution for their most business critical data.
