@@ -60,7 +60,8 @@ For this section, we are using this as the example.
 
 CREATE UNIQUE INDEX customers_email_key ON inventory.customers(email text_ops);
 
-INSERT INTO customers (id, first_name, last_name, email) VALUES (1001, 'Sally', 'Thomas', 'sally.thomas@acme.com');
+INSERT INTO customers (id, first_name, last_name, email)
+    VALUES (1001, 'Sally', 'Thomas', 'sally.thomas@acme.com');
 
 UPDATE customers SET first_name = 'Sally #2', last_name = 'Thomas #2' where id = 1001;</code></pre>
 

@@ -62,7 +62,8 @@ want to alter your replica identity in certain situations. We also discuss perfo
 
 CREATE UNIQUE INDEX customers_email_key ON inventory.customers(email text_ops);
 
-INSERT INTO customers (id, first_name, last_name, email) VALUES (1001, 'Sally', 'Thomas', 'sally.thomas@acme.com');
+INSERT INTO customers (id, first_name, last_name, email)
+    VALUES (1001, 'Sally', 'Thomas', 'sally.thomas@acme.com');
 
 UPDATE customers SET first_name = 'Sally #2', last_name = 'Thomas #2' where id = 1001;</code></pre>
 <h3><a aria-hidden="true" class="anchor-link" href="#default" id="default" title="Permalink">#</a>Default</h3>
