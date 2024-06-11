@@ -22,6 +22,7 @@ Mike Cohen, the Head of Data at Substack, wanted to upgrade their infrastructure
 ## Substack chose Artie because it was the only complete CDC solution and it just worked
 
 Substack chose Artie for several reasons:
+
 * Artie has built a custom snapshot solution that is capable of parallel processing for historical table snapshots. It’s also able to read from the read-replica, thus putting less load on the primary database.
 * For CDC streaming, Artie is able to ingest large tables quickly without impacting database performance and incurs zero WAL growth on Postgres instances.
 * Artie offered a complete solution and also handles schema changes (DDLs), including performing hard deletes, which saves Substack’s data team a lot of engineering time. With other CDC streaming solutions, Substack’s engineering team would have to write custom jobs to detect schema changes from CDC events, materialize the new table, and merge results into the final table in Snowflake that is used for downstream analytics. With Artie, these steps are all automated.
@@ -34,7 +35,7 @@ Implementation was very easy and it took two weeks to fully onboard a couple hun
 > The Artie team was very responsive to feedback and easy to work with, and they were very knowledgeable about the space.
 
 Today, Artie is powering the entire Postgres to Snowflake data replication process. Substack recently adopted a second connector to sync data from DynamoDB to Snowflake. Artie is transferring ~1 billion rows per month with average data latency across tables of 10-15 seconds. In addition, total cost of ownership on overall data infrastructure was lowered given Artie’s optimizations and sync efficiency.
-
+<br/><br/>
 
 **About Artie**: Artie is a real time data replication solution for databases and data warehouses. Artie leverages change data capture (CDC) and stream processing to perform data syncs in a more efficient way, which enables sub-minute latency and helps optimize compute costs. With Artie, any company can set up streaming pipelines in minutes without coding.
 
