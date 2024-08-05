@@ -5,8 +5,7 @@ to the fact that all references in a database are valid.
 
 Consider the following table:
 
-<pre><code class="language-sql">
-CREATE TABLE parent(
+<pre><code class="language-sql">CREATE TABLE parent(
     id INT PRIMARY KEY
 );
 
@@ -41,8 +40,7 @@ parent table. In this blog, we'll do a deep dive of cascading changes and **reas
 Cascading updates will detect primary key updates and automatically update references in the child table. To enable
 this, we would do something like this:
 
-<pre><code class="language-sql">
-CREATE TABLE child (
+<pre><code class="language-sql">CREATE TABLE child (
     id INT PRIMARY KEY,
     parent_id INT,
     FOREIGN KEY (parent_id) REFERENCES parent(id) ON UPDATE CASCADE
@@ -51,8 +49,7 @@ CREATE TABLE child (
 
 If I then update the primary key of the parent, all the child references will be automatically updated.
 
-<pre><code class="language-sql">
-UPDATE parent SET id = 2 WHERE id = 1;
+<pre><code class="language-sql">UPDATE parent SET id = 2 WHERE id = 1;
 
 SELECT * FROM child;
 +----+-----------+
@@ -71,8 +68,7 @@ need to change a table's primary keys since it could impact external application
 Cascading deletes will detect a delete in the parent table and automatically delete all the referenced child rows. To
 enable this, we would do something like this:
 
-<pre><code class="language-sql">
-CREATE TABLE child (
+<pre><code class="language-sql">CREATE TABLE child (
     id INT PRIMARY KEY,
     parent_id INT,
     FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE 
@@ -82,8 +78,7 @@ CREATE TABLE child (
 With cascading deletes, if I deleted an entry from the parent, the respective child entries will be automatically
 deleted.
 
-<pre><code class="language-sql">
-SELECT * FROM child;
+<pre><code class="language-sql">SELECT * FROM child;
 +----+-----------+
 | id | parent_id |
 +----+-----------+
@@ -129,8 +124,7 @@ The key differences are:
 To remove cascading changes, you will need to recreate the constraint, below is a snippet of how you would do it:
 
 First, you'll need to find the foreign constraint name
-<pre><code class="language-sql">
-SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+<pre><code class="language-sql">SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
 WHERE TABLE_NAME = 'child' AND COLUMN_NAME = 'parent_id';
 +-----------------+
 | CONSTRAINT_NAME |
@@ -142,8 +136,7 @@ WHERE TABLE_NAME = 'child' AND COLUMN_NAME = 'parent_id';
 
 Once you have the constraint name, we can recreate it.
 
-<pre><code class="language-sql">
-START TRANSACTION;
+<pre><code class="language-sql">START TRANSACTION;
 -- (optional) Lock on the parent and child tables to prevent data changes
 LOCK TABLES parent WRITE, child WRITE;
 

@@ -2,8 +2,7 @@
 <p>Cascading changes are used as a way to ensure referential integrity between related tables. Referential integrity refers
 to the fact that all references in a database are valid.</p>
 <p>Consider the following table:</p>
-<pre><code class="language-sql">
-CREATE TABLE parent(
+<pre><code class="language-sql">CREATE TABLE parent(
     id INT PRIMARY KEY
 );
 
@@ -17,7 +16,7 @@ INSERT INTO parent (id) VALUES (1);
 INSERT INTO child (id, parent_id) VALUES (1, 1), (2, 1);
 </code></pre>
 <p>Which would create tables that look like this:</p>
-<p><img class="img-center" alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/cascading_changes/img.png"/></p>
+<p><img alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/cascading_changes/img.png"/></p>
 <ul>
 <li>In the child table, we have rows that are referencing the parent table (id = 1). As this is set up with as a foreign
   key constraint, we cannot delete the parent row with id = 1 without first deleting the child rows that reference it.</li>
@@ -33,16 +32,14 @@ parent table. In this blog, we'll do a deep dive of cascading changes and <stron
 <h3><a aria-hidden="true" class="anchor-link" href="#cascading-updates" id="cascading-updates" title="Permalink">#</a>Cascading updates</h3>
 <p>Cascading updates will detect primary key updates and automatically update references in the child table. To enable
 this, we would do something like this:</p>
-<pre><code class="language-sql">
-CREATE TABLE child (
+<pre><code class="language-sql">CREATE TABLE child (
     id INT PRIMARY KEY,
     parent_id INT,
     FOREIGN KEY (parent_id) REFERENCES parent(id) ON UPDATE CASCADE
 );
 </code></pre>
 <p>If I then update the primary key of the parent, all the child references will be automatically updated.</p>
-<pre><code class="language-sql">
-UPDATE parent SET id = 2 WHERE id = 1;
+<pre><code class="language-sql">UPDATE parent SET id = 2 WHERE id = 1;
 
 SELECT * FROM child;
 +----+-----------+
@@ -57,8 +54,7 @@ need to change a table's primary keys since it could impact external application
 <h3><a aria-hidden="true" class="anchor-link" href="#cascading-deletes" id="cascading-deletes" title="Permalink">#</a>Cascading deletes</h3>
 <p>Cascading deletes will detect a delete in the parent table and automatically delete all the referenced child rows. To
 enable this, we would do something like this:</p>
-<pre><code class="language-sql">
-CREATE TABLE child (
+<pre><code class="language-sql">CREATE TABLE child (
     id INT PRIMARY KEY,
     parent_id INT,
     FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE 
@@ -66,8 +62,7 @@ CREATE TABLE child (
 </code></pre>
 <p>With cascading deletes, if I deleted an entry from the parent, the respective child entries will be automatically
 deleted.</p>
-<pre><code class="language-sql">
-SELECT * FROM child;
+<pre><code class="language-sql">SELECT * FROM child;
 +----+-----------+
 | id | parent_id |
 +----+-----------+
@@ -125,8 +120,7 @@ Empty set (0.00 sec)
 <h2><a aria-hidden="true" class="anchor-link" href="#how-do-you-remove-cascading-changes-if-you-have-it-enabled" id="how-do-you-remove-cascading-changes-if-you-have-it-enabled" title="Permalink">#</a>How do you remove cascading changes if you have it enabled?</h2>
 <p>To remove cascading changes, you will need to recreate the constraint, below is a snippet of how you would do it:</p>
 <p>First, you'll need to find the foreign constraint name</p>
-<pre><code class="language-sql">
-SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+<pre><code class="language-sql">SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
 WHERE TABLE_NAME = 'child' AND COLUMN_NAME = 'parent_id';
 +-----------------+
 | CONSTRAINT_NAME |
@@ -136,8 +130,7 @@ WHERE TABLE_NAME = 'child' AND COLUMN_NAME = 'parent_id';
 1 row in set (0.01 sec)
 </code></pre>
 <p>Once you have the constraint name, we can recreate it.</p>
-<pre><code class="language-sql">
-START TRANSACTION;
+<pre><code class="language-sql">START TRANSACTION;
 -- (optional) Lock on the parent and child tables to prevent data changes
 LOCK TABLES parent WRITE, child WRITE;
 
