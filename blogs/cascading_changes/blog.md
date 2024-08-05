@@ -5,11 +5,11 @@ to the fact that all references in a database are valid.
 
 Consider the following table:
 
-<pre><code class="language-sql">CREATE TABLE parent(
+<pre><code class="language-sql">CREATE TABLE parent (
     id INT PRIMARY KEY
 );
 
-CREATE TABLE child(
+CREATE TABLE child (
     id        INT PRIMARY KEY,
     parent_id INT,
     FOREIGN KEY (parent_id) REFERENCES parent (id)
