@@ -107,15 +107,19 @@ Empty set (0.00 sec)
 <h2><a aria-hidden="true" class="anchor-link" href="#why-do-we-not-recommend-it-in-production" id="why-do-we-not-recommend-it-in-production" title="Permalink">#</a>Why do we not recommend it in production?</h2>
 <ul>
 <li>Cascading changes makes the database more susceptible to unintended changes</li>
-<li>Deleting a record in the parent may trigger mass deletes to other child tables</li>
-<li>You will most likely want to archive or soft delete the data instead of hard delete in order to keep it for historical purposes</li>
-<li>It's extremely difficult to recover from an unintended delete as row changes will not appear in binlogs</li>
-<li>If a deleted record has related records that needs to be deleted first, it's better to block and have users explicitly delete the dependent records first</li>
-<li>For example: If you are an e-commerce company, and you delete a row in the <code>products</code> table and the <code>orders</code> table is set to cascade delete, you will lose all the order history for that product</li>
+    <ul>
+        <li>Deleting a record in the parent may trigger mass deletes to other child tables</li>
+        <li>You will most likely want to archive or soft delete the data instead of hard delete in order to keep it for historical purposes</li>
+        <li>It's extremely difficult to recover from an unintended delete as row changes will not appear in binlogs</li>
+        <li>If a deleted record has related records that needs to be deleted first, it's better to block and have users explicitly delete the dependent records first</li>
+        <li>For example: If you are an e-commerce company, and you delete a row in the <code>products</code> table and the <code>orders</code> table is set to cascade delete, you will lose all the order history for that product</li>
+    </ul>
 <li>It makes debugging more difficult as other team members may not be cognizant of it</li>
 <li>Cascading changes are also bad for performance as it requires a serializable lock</li>
-<li>A serializable lock will hold an exclusive lock on the resulting data and will block other transactions and queries from accessing the locked rows</li>
-<li>This may lead to deadlocks and slow running queries</li>
+    <ul>
+        <li>A serializable lock will hold an exclusive lock on the resulting data and will block other transactions and queries from accessing the locked rows</li>
+        <li>This may lead to deadlocks and slow running queries</li>
+    </ul>
 </ul>
 <h2><a aria-hidden="true" class="anchor-link" href="#how-do-you-remove-cascading-changes-if-you-have-it-enabled" id="how-do-you-remove-cascading-changes-if-you-have-it-enabled" title="Permalink">#</a>How do you remove cascading changes if you have it enabled?</h2>
 <p>To remove cascading changes, you will need to recreate the constraint, below is a snippet of how you would do it:</p>
