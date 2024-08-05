@@ -1,0 +1,153 @@
+<h2><a aria-hidden="true" class="anchor-link" href="#cascading-changes" id="cascading-changes" title="Permalink">#</a>Cascading changes</h2>
+<p>Cascading changes are used as a way to ensure referential integrity between related tables. Referential integrity refers
+to the fact that all references in a database are valid.</p>
+<p>Consider the following table:</p>
+<pre><code class="language-sql">
+CREATE TABLE parent(
+    id INT PRIMARY KEY
+);
+
+CREATE TABLE child(
+    id        INT PRIMARY KEY,
+    parent_id INT,
+    FOREIGN KEY (parent_id) REFERENCES parent (id)
+);
+
+INSERT INTO parent (id) VALUES (1);
+INSERT INTO child (id, parent_id) VALUES (1, 1), (2, 1);
+</code></pre>
+<p>Which would create tables that look like this:</p>
+<p><img class="img-center" alt="img.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/cascading_changes/img.png"/></p>
+<ul>
+<li>In the child table, we have rows that are referencing the parent table (id = 1). As this is set up with as a foreign
+  key constraint, we cannot delete the parent row with id = 1 without first deleting the child rows that reference it.</li>
+<li>However, with cascading deletes, we can delete the parent row and have the child rows automatically deleted.</li>
+</ul>
+<p>You can use cascading changes to automatically apply certain actions to child tables based on what has occurred on the
+parent table. In this blog, we'll do a deep dive of cascading changes and <strong>reasons why you shouldn't use them</strong>.</p>
+<h2><a aria-hidden="true" class="anchor-link" href="#types-of-cascading-changes" id="types-of-cascading-changes" title="Permalink">#</a>Types of cascading changes</h2>
+<ul>
+<li>Cascading updates (ON UPDATE CASCADE)</li>
+<li>Cascading deletes (ON DELETE CASCADE)</li>
+</ul>
+<h3><a aria-hidden="true" class="anchor-link" href="#cascading-updates" id="cascading-updates" title="Permalink">#</a>Cascading updates</h3>
+<p>Cascading updates will detect primary key updates and automatically update references in the child table. To enable
+this, we would do something like this:</p>
+<pre><code class="language-sql">
+CREATE TABLE child (
+    id INT PRIMARY KEY,
+    parent_id INT,
+    FOREIGN KEY (parent_id) REFERENCES parent(id) ON UPDATE CASCADE
+);
+</code></pre>
+<p>If I then update the primary key of the parent, all the child references will be automatically updated.</p>
+<pre><code class="language-sql">
+UPDATE parent SET id = 2 WHERE id = 1;
+
+SELECT * FROM child;
++----+-----------+
+| id | parent_id |
++----+-----------+
+|  1 |      2    |
+|  2 |      2    |
++----+-----------+
+</code></pre>
+<p>In practice, we rarely would use cascading updates as we would try to avoid and minimize the amount of times we would
+need to change a table's primary keys since it could impact external applications.</p>
+<h3><a aria-hidden="true" class="anchor-link" href="#cascading-deletes" id="cascading-deletes" title="Permalink">#</a>Cascading deletes</h3>
+<p>Cascading deletes will detect a delete in the parent table and automatically delete all the referenced child rows. To
+enable this, we would do something like this:</p>
+<pre><code class="language-sql">
+CREATE TABLE child (
+    id INT PRIMARY KEY,
+    parent_id INT,
+    FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE 
+);
+</code></pre>
+<p>With cascading deletes, if I deleted an entry from the parent, the respective child entries will be automatically
+deleted.</p>
+<pre><code class="language-sql">
+SELECT * FROM child;
++----+-----------+
+| id | parent_id |
++----+-----------+
+|  1 |         1 |
+|  2 |         1 |
++----+-----------+
+2 rows in set (0.00 sec)
+
+DELETE FROM parent where id = 1;
+Query OK, 1 row affected (0.01 sec)
+
+SELECT * FROM child;
+Empty set (0.00 sec)
+</code></pre>
+<h2><a aria-hidden="true" class="anchor-link" href="#how-are-cascading-changes-different-from-triggers" id="how-are-cascading-changes-different-from-triggers" title="Permalink">#</a>How are cascading changes different from triggers?</h2>
+<table class="page-table">
+<thead>
+<tr>
+<th></th>
+<th>Cascading changes</th>
+<th>Triggers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Maintaining referential integrity.</td>
+<td>Can be used to execute a set of specific SQL statements.</td>
+</tr>
+<tr>
+<td><strong>Comments</strong></td>
+<td>-</td>
+<td>Database triggers offer more expressive ways to execute code based on specified database changes such as insert, update and deletes.</td>
+</tr>
+</tbody>
+</table>
+<p>The key differences are:</p>
+<ol>
+<li><a href="https://dev.mysql.com/doc/refman/8.4/en/trigger-syntax.html">Database triggers</a> are more expressive than cascading changes, it can be used to execute arbitrary SQL statements based on specified database changes.</li>
+<li>Changes from a database trigger will show up in binlogs, <strong>whereas cascading changes will not</strong>. This may be an important consideration if you are using log-based replication.</li>
+</ol>
+<h2><a aria-hidden="true" class="anchor-link" href="#why-do-we-not-recommend-it-in-production" id="why-do-we-not-recommend-it-in-production" title="Permalink">#</a>Why do we not recommend it in production?</h2>
+<ul>
+<li>Cascading changes makes the database more susceptible to unintended changes</li>
+<li>Deleting a record in the parent may trigger mass deletes to other child tables</li>
+<li>You will most likely want to archive or soft delete the data instead of hard delete in order to keep it for historical purposes</li>
+<li>It's extremely difficult to recover from an unintended delete as row changes will not appear in binlogs</li>
+<li>If a deleted record has related records that needs to be deleted first, it's better to block and have users explicitly delete the dependent records first</li>
+<li>For example: If you are an e-commerce company, and you delete a row in the <code>products</code> table and the <code>orders</code> table is set to cascade delete, you will lose all the order history for that product</li>
+<li>It makes debugging more difficult as other team members may not be cognizant of it</li>
+<li>Cascading changes are also bad for performance as it requires a serializable lock</li>
+<li>A serializable lock will hold an exclusive lock on the resulting data and will block other transactions and queries from accessing the locked rows</li>
+<li>This may lead to deadlocks and slow running queries</li>
+</ul>
+<h2><a aria-hidden="true" class="anchor-link" href="#how-do-you-remove-cascading-changes-if-you-have-it-enabled" id="how-do-you-remove-cascading-changes-if-you-have-it-enabled" title="Permalink">#</a>How do you remove cascading changes if you have it enabled?</h2>
+<p>To remove cascading changes, you will need to recreate the constraint, below is a snippet of how you would do it:</p>
+<p>First, you'll need to find the foreign constraint name</p>
+<pre><code class="language-sql">
+SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+WHERE TABLE_NAME = 'child' AND COLUMN_NAME = 'parent_id';
++-----------------+
+| CONSTRAINT_NAME |
++-----------------+
+| child_ibfk_1    |
++-----------------+
+1 row in set (0.01 sec)
+</code></pre>
+<p>Once you have the constraint name, we can recreate it.</p>
+<pre><code class="language-sql">
+START TRANSACTION;
+-- (optional) Lock on the parent and child tables to prevent data changes
+LOCK TABLES parent WRITE, child WRITE;
+
+-- Drop the existing foreign key constraint
+ALTER TABLE child DROP FOREIGN KEY child_ibfk_1;
+
+-- Recreate the constraint
+ALTER TABLE child ADD CONSTRAINT child_table_ibfk_1 FOREIGN KEY (parent_id) REFERENCES parent (id);
+
+-- Unlock the tables (if locked)
+UNLOCK TABLES;
+COMMIT;
+</code></pre>
