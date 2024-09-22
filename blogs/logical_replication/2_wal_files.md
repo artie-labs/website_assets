@@ -47,12 +47,12 @@ Replication slots are reservations for a replication connection to send WAL data
 
 There are several important parameters you can set to control database performance while using WAL. These include:
 
-* wal_level
-* fsync and wal_sync_method
-* wal_buffers
-* checkpoint_flush_after
-* max_replication_slots
-* max_slot_wal_keep_size
+* `wal_level`
+* `fsync` and `wal_sync_method`
+* `wal_buffers`
+* `checkpoint_flush_after`
+* `max_replication_slots`
+* `max_slot_wal_keep_size`
 
 ### wal_level
 
