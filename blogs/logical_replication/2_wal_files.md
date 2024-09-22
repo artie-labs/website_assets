@@ -27,7 +27,7 @@ Postgres then purges the logs when a checkpoint is complete and the data has bee
 
 ![img_4.png](img_4.png)
 
-## Logs
+### Logs
 
 WAL logs are the files in which various transactions are stored. These logs are written to disk before the changes are made to the database.
 
