@@ -10,11 +10,15 @@ In this part, we’ll discuss how write-ahead logs work, why you want to use the
 <p>Postgres then purges the logs when a checkpoint is complete and the data has been flushed to disk. </p>
 <h2><a aria-hidden="true" class="anchor-link" href="#components-of-write-ahead-logs" id="components-of-write-ahead-logs" title="Permalink">#</a>Components of write-ahead logs</h2>
 <ol>
+<li>Logs</li>
 <li>Checkpoints</li>
 <li>Buffers</li>
 <li>Log sequence numbers (LSN)</li>
 <li>Replication slots</li>
 </ol>
+<p><img alt="img_1.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/logical_replication/img_1.png"/></p>
+<h2><a aria-hidden="true" class="anchor-link" href="#logs" id="logs" title="Permalink">#</a>Logs</h2>
+<p>WAL logs are the files in which various transactions are stored. These logs are written to disk before the changes are made to the database.</p>
 <h3><a aria-hidden="true" class="anchor-link" href="#checkpoints" id="checkpoints" title="Permalink">#</a>Checkpoints</h3>
 <p>Checkpoints are points in the sequence of transactions within a log file where all the data is guaranteed to have been updated with the information before the checkpoints. 
 These are particularly important in crashes since the WAL file recovers from the most recent checkpoint. This is then where the system performs the REDO operation. </p>
@@ -22,6 +26,7 @@ These are particularly important in crashes since the WAL file recovers from the
 <p>Postgres refers to buffers as the working units that read and write data to your tables. The buffers of write-ahead logs are typically called transaction log buffers. 
 These determine the amount of memory allocated to storing WAL data which we will configure later in the article when we look at the <strong>wal_buffers</strong> parameter. </p>
 <h3><a aria-hidden="true" class="anchor-link" href="#log-sequence-numbers-lsn" id="log-sequence-numbers-lsn" title="Permalink">#</a>Log sequence numbers (LSN)</h3>
+<p><img alt="img_2.png" class="img-small" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/logical_replication/img_2.png"/></p>
 <p>Log sequence numbers are 64-bit integers assigned to individual transactions within a WAL, indicating the INSERT position. 
 They are byte offsets unique within a single log stream that increase with each new transaction and are of data type pg_lsn. LSNs can help determine the amount of data in bytes between different transactions. </p>
 <h3><a aria-hidden="true" class="anchor-link" href="#replication-slots" id="replication-slots" title="Permalink">#</a>Replication slots</h3>

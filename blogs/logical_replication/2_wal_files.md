@@ -19,10 +19,17 @@ Postgres then purges the logs when a checkpoint is complete and the data has bee
 
 ## Components of write-ahead logs
 
-1. Checkpoints
-2. Buffers
-3. Log sequence numbers (LSN)
-4. Replication slots
+1. Logs
+2. Checkpoints
+3. Buffers
+4. Log sequence numbers (LSN)
+5. Replication slots
+
+![img_1.png](img_1.png)
+
+## Logs
+
+WAL logs are the files in which various transactions are stored. These logs are written to disk before the changes are made to the database.
 
 ### Checkpoints
 
@@ -35,6 +42,8 @@ Postgres refers to buffers as the working units that read and write data to your
 These determine the amount of memory allocated to storing WAL data which we will configure later in the article when we look at the **wal_buffers** parameter. 
 
 ### Log sequence numbers (LSN)
+
+![img_2.png](img_2.png)
 
 Log sequence numbers are 64-bit integers assigned to individual transactions within a WAL, indicating the INSERT position. 
 They are byte offsets unique within a single log stream that increase with each new transaction and are of data type pg_lsn. LSNs can help determine the amount of data in bytes between different transactions. 
