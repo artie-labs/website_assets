@@ -1,3 +1,14 @@
+<style>
+  .lsn-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .lsn-container img {
+    margin-right: 20px; /* Adjust the spacing as needed */
+  }
+</style>
+
 <h2><a aria-hidden="true" class="anchor-link" href="#intro" id="intro" title="Permalink">#</a>Intro</h2>
 <p>This is the second part of our deep dive into Postgres logical replication. If you haven’t read through part one on <a href="https://www.artie.com/blogs/postgres-table-replica-identity">replica identity</a>, be sure to check that out. 
 In this part, we’ll discuss how write-ahead logs work, why you want to use them, and their various components and settings.</p>
@@ -26,9 +37,16 @@ These are particularly important in crashes since the WAL file recovers from the
 <p>Postgres refers to buffers as the working units that read and write data to your tables. The buffers of write-ahead logs are typically called transaction log buffers. 
 These determine the amount of memory allocated to storing WAL data which we will configure later in the article when we look at the <strong>wal_buffers</strong> parameter. </p>
 <h3><a aria-hidden="true" class="anchor-link" href="#log-sequence-numbers-lsn" id="log-sequence-numbers-lsn" title="Permalink">#</a>Log sequence numbers (LSN)</h3>
-<p><img alt="img_2.png" class="img-small" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/logical_replication/img_2.png"/></p>
-<p>Log sequence numbers are 64-bit integers assigned to individual transactions within a WAL, indicating the INSERT position. 
-They are byte offsets unique within a single log stream that increase with each new transaction and are of data type pg_lsn. LSNs can help determine the amount of data in bytes between different transactions. </p>
+<div class="lsn-container">
+  <p>Log sequence numbers are 64-bit integers assigned to individual transactions within a WAL, indicating the INSERT position.
+    They are byte offsets unique within a single log stream that increase with each new transaction and are of data type pg_lsn. LSNs can help determine the amount of data in bytes between different transactions.</p>
+  <img alt="img_2.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/logical_replication/img_2.png"/>
+</div>
+
+<!--<h3><a aria-hidden="true" class="anchor-link" href="#log-sequence-numbers-lsn" id="log-sequence-numbers-lsn" title="Permalink">#</a>Log sequence numbers (LSN)</h3>-->
+<!--<p><img alt="img_2.png" src="https://cdn.jsdelivr.net/gh/artie-labs/website_assets/blogs/logical_replication/img_2.png"/></p>-->
+<!--<p>Log sequence numbers are 64-bit integers assigned to individual transactions within a WAL, indicating the INSERT position. -->
+<!--They are byte offsets unique within a single log stream that increase with each new transaction and are of data type pg_lsn. LSNs can help determine the amount of data in bytes between different transactions. </p>-->
 <h3><a aria-hidden="true" class="anchor-link" href="#replication-slots" id="replication-slots" title="Permalink">#</a>Replication slots</h3>
 <p>Replication slots are reservations for a replication connection to send WAL data to a replica. They are used to safeguard against losing data. Postgres uses them to retain data necessary for WAL, ensuring it is not removed until all necessary changes have been made. </p>
 <h2><a aria-hidden="true" class="anchor-link" href="#wal-settings" id="wal-settings" title="Permalink">#</a>WAL settings</h2>
@@ -61,7 +79,7 @@ They are byte offsets unique within a single log stream that increase with each 
 </ul>
 <p>We recommend using the default settings for both of these parameters, unless you are trying to finetune these settings for performance or adapt to your specific hardware.</p>
 <h3><a aria-hidden="true" class="anchor-link" href="#wal_buffers" id="wal_buffers" title="Permalink">#</a>wal_buffers</h3>
-<p>This refers to the amount of shared memory used for WAL data that hasn’t yet been written to disk. The default of -1 is usually just right for optimal performance. 
+<p>This refers to the amount of shared memory used for WAL data that hasn’t yet been written to disk. The default of -1 is usually just right for optimal performance.
 Increasing this value will increase the shared memory used by WAL, making it so we don’t have to continue committing to disk. </p>
 <p>In the case of buffers, setting this to a large value will not typically yield a huge benefit. However, it could help improve write performance on servers with multiple commitments happening at the same time, increasing response times after checkpoints. </p>
 <p>The default of the synchronous_commit parameter being on will prevent the risk of durability in the event of a crash. Durability should only be a concern if <code>synchronous_commit = off</code>.</p>
