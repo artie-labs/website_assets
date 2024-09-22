@@ -43,7 +43,7 @@ These determine the amount of memory allocated to storing WAL data which we will
 
 ### Log sequence numbers (LSN)
 
-![img_2.png](img_2.png)
+![img_3.png](img_3.png)
 
 Log sequence numbers are 64-bit integers assigned to individual transactions within a WAL, indicating the INSERT position. 
 They are byte offsets unique within a single log stream that increase with each new transaction and are of data type pg_lsn. LSNs can help determine the amount of data in bytes between different transactions. 
