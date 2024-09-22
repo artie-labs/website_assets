@@ -25,7 +25,7 @@ Postgres then purges the logs when a checkpoint is complete and the data has bee
 4. Log sequence numbers (LSN)
 5. Replication slots
 
-![img_1.png](img_1.png)
+![img_4.png](img_4.png)
 
 ## Logs
 
