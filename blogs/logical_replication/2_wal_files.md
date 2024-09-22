@@ -54,10 +54,6 @@ There are several important parameters you can set to control database performan
 * max_replication_slots
 * max_slot_wal_keep_size
 
-To look at these different parameters and analyze WAL statistics in Postgres, you can run the following:
-
-<pre><code class="language-sql">SELECT * FROM pg_stat_bgwriter;</code></pre>
-
 ### wal_level
 
 This setting controls how much information is written to your logs. In the case of Postgres replication, you will most likely want to use the default of replica. 
