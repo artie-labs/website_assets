@@ -8,4 +8,4 @@ Our policies, compliance report, and other details are available at our [Trust C
 
 If you would like to learn more about HIPAA, how to sign a business associate agreement (BAA), or hear more details on how Artie approaches data security, please reach out to [hi@artie.com](mailto:hi@artie.com).
 
-![HIPAA Announcement](./dr_artie.webp)
+![HIPAA Announcement](./doctor.webp)
