@@ -1,13 +1,14 @@
 Papaya, a leader in mobile bill payments, faced a growing challenge: their data infrastructure struggled to keep pace with rising demand. With Artie, they found a solution that transformed their ETL process, empowering them to streamline data ingestion and scale their operations effortlessly.
 
-> Artie has been an absolute game-changer for our CDC ETL process. Before integrating Artie into our workflow, we struggled with inefficiencies and time-consuming maintenance that drained our resources. Since adopting Artie, we've experienced a remarkable boost in productivity and a significant reduction in time required to maintain our ETL processes.
->
-> <cite>-- Daniel Clendenning, Senior Software Engineer</cite>
+_Artie has been an absolute game-changer for our CDC ETL process. Before integrating Artie into our workflow, we struggled with inefficiencies and time-consuming maintenance that drained our resources. Since adopting Artie, we've experienced a remarkable boost in productivity and a significant reduction in time required to maintain our ETL processes._
+
+—— Daniel Clendenning, Senior Software Engineer
 
 ## TL;DR
 
 ![img.png](img.png)
 
+<br/>
 ## Key results
 
 * Consolidated multiple batch ETL processes into a single CDC solution across all databases
@@ -32,7 +33,7 @@ One missed bill payment can be detrimental to a business, and Daniel’s team sp
 
 _"The biggest pain points were the maintenance of the two different ETL processes, the development time for adding new sources to our Airflow ETL process, and monitoring and alerting that needed improvements."_
 
-— Daniel Clendenning, Senior Software Engineer
+—— Daniel Clendenning, Senior Software Engineer
 
 As Papaya’s user base expanded, their in-house solution struggled to keep up with the growing data volumes without escalating maintenance costs.
 
@@ -46,7 +47,7 @@ After implementing Artie, the Papaya team quickly retired their in-house tool so
 
 _"The biggest business values that Artie has provided for us are the time savings versus maintaining our own CDC ETL process and the confidence we have in the consistency of our data."_
 
-— Daniel Clendenning, Senior Software Engineer
+—— Daniel Clendenning, Senior Software Engineer
 
 
 With Artie’s monitoring and alerting tools, Daniel’s team could now easily monitor their data pipeline performance all on a [single analytics dashboard](https://www.artie.com/docs/monitoring/analytics-portal) and moving onto a CDC solution meant that they had real-time visibility into their pipeline. Suddenly it became simple to view data ingestion lag based on time and/or the number of rows, and they could also monitor Snowflake usage. To the team’s surprise, despite moving from batch ETL to streaming processes, Papaya’s Snowflake costs were optimized with Artie and the total cost of ownership (TCO) had in fact decreased!
