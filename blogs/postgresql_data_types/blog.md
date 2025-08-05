@@ -44,7 +44,9 @@ CREATE TABLE events (
 ### Decimal Types
 
 **DECIMAL/NUMERIC** (variable)
-- Precision and scale: DECIMAL(p,s) where p is total digits, s is decimal places
+- A data type that looks like `NUMERIC(10, 2)` means that the total number of digits (precision) for this type is 10 and the number of decimal places (scale) is 2
+- Example of `123.45`, this number has precision of 5 and scale of 2.
+- Decimal and numeric types are equivalent
 - Use case: Financial data, measurements requiring exact precision
 ```sql
 CREATE TABLE transactions (
