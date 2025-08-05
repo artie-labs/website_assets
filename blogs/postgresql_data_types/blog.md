@@ -1,26 +1,24 @@
-# PostgreSQL Data Types: A Complete Guide to Vanilla PostgreSQL
+# Every PostgreSQL Data Types
 
-When you're building data pipelines or designing database schemas, understanding PostgreSQL data types is crucial. The wrong data type choice can lead to performance issues, storage waste, or even data integrity problems. But with PostgreSQL's rich type system, it's easy to get overwhelmed by the options.
-
-Most teams start with basic types like `VARCHAR` and `INTEGER`, but they miss out on PostgreSQL's powerful built-in types that can make their applications more robust and efficient. They end up with oversized columns, poor performance, and maintenance headaches.
-
-At Artie, we believe that choosing the right data type is fundamental to building reliable data infrastructure. PostgreSQL's type system is one of its greatest strengths—it provides both safety and flexibility. Understanding these types helps you make informed decisions about your data model, whether you're building applications or setting up CDC pipelines.
+In this post, we will be covering every data type that exists in Postgres and also cover some of the most popular data types available through extensions. 
 
 ## Numeric Types
 
 ### Integer Types
 
 **SMALLINT** (2 bytes)
+- Also referred to as `int16`
 - Range: -32,768 to +32,767
 - Use case: Small numbers like ages, counts, or status codes
 ```sql
 CREATE TABLE users (
-    age SMALLINT,
-    status_code SMALLINT DEFAULT 1
+    id INTEGER PRIMARY KEY,
+    age SMALLINT
 );
 ```
 
 **INTEGER/INT** (4 bytes)
+- Also referred to as `int32`
 - Range: -2,147,483,648 to +2,147,483,647
 - Use case: Most common integer type for IDs, counts, and general numbers
 ```sql
@@ -32,8 +30,9 @@ CREATE TABLE orders (
 ```
 
 **BIGINT** (8 bytes)
+- Also referred to as `int64`
 - Range: -9,223,372,036,854,775,808 to +9,223,372,036,854,775,807
-- Use case: Large numbers like timestamps, very large counts, or when you need the maximum range
+- Use case: Large numbers like timestamps, very large counts, this can also be used as a primary key data type for large tables.
 ```sql
 CREATE TABLE events (
     id BIGINT PRIMARY KEY,
