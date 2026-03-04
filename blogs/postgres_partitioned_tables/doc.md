@@ -5,7 +5,7 @@ Partitioned tables are common in Postgres, but it's often a headache when it com
 Here are some challenges that companies run into:
 
 1. Are the partitions following a particular regex pattern?
-2. Are the partitions stored in a separate schema from the actual table?
+2. Are the partitions stored in a separate schema from the root table?
 3. Are the partitioned tables stored in the publication?
 4. The desire to fan all of these partitions into a single table downstream
 5. A regular table changed to a partitioned table and breaking downstream dependencies
@@ -44,3 +44,10 @@ For example, if the partitions were something like `orders_sf`, `orders_oakland`
 
 By using `publish_via_partition_root`, users will no longer need to specify a regular expression as there is no need to include the actual partitions as we only care about the root table.
 
+### Are the partitions stored in a separate schema from the root table?
+
+There could be additional scenarios where the partitions live in a separate schema from the root table. So then a simple regular expression search will need to also account for the child schema.
+
+### Are the partitioned tables stored in the publication?
+
+For folks that are not using publication for all tables and are manually enrolling tables into the publication. Supporting partitioned tables becomes extremely error prone.
