@@ -1,0 +1,220 @@
+/* stylelint-disable */
+
+:root {
+    --colorPrimary900: #00c9a7;
+    --colorPrimary600: #00e4bc;
+    --widthMaxJobBoard: 900px;
+    --borderRadiusContainer: 0px;
+    --borderRadiusControl: 8px;
+    --borderRadiusButton: 8px;
+    --fontFamily: "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Helvetica", "Arial", sans-serif;
+    --colorAppBackground: #0d0d0d;
+}
+
+/* ============================================================
+   Hide redundant elements (already provided by the Webflow page)
+   ============================================================ */
+
+.ashby-job-board-heading,
+.ashby-job-board-heading-count,
+.ashby-job-board-filters-label,
+.ashby-job-board-filter,
+.ashby-job-board-reset-filters-label {
+    display: none !important;
+}
+
+/* ============================================================
+   Job posting brief list
+   ============================================================ */
+
+.ashby-job-posting-brief-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ============================================================
+   Individual job posting row
+   ============================================================ */
+
+.ashby-job-posting-brief {
+    margin-bottom: 0;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ashby-job-posting-brief:last-child {
+    border-bottom: none;
+}
+
+/* ============================================================
+   Job title
+   ============================================================ */
+
+.ashby-job-posting-brief-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+}
+
+.ashby-job-posting-brief-title:hover {
+    color: var(--colorPrimary600);
+}
+
+/* ============================================================
+   Job details (location, type, etc.)
+   ============================================================ */
+
+.ashby-job-posting-brief-details {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 14px;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   Department headings
+   ============================================================ */
+
+.ashby-department-heading,
+.ashby-job-posting-brief-department-heading {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 40px;
+    margin-bottom: 4px;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.ashby-department-heading-level,
+.ashby-job-posting-brief-department-heading-level {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   Back to all jobs button
+   ============================================================ */
+
+.ashby-job-board-back-to-all-jobs-button {
+    color: var(--colorPrimary600);
+    font-size: 14px;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* ============================================================
+   Job posting page
+   ============================================================ */
+
+.ashby-job-posting-header {
+    color: #ffffff;
+}
+
+.ashby-job-posting-heading {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.ashby-job-posting-left-pane {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.ashby-job-posting-right-pane {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* ============================================================
+   Application form
+   ============================================================ */
+
+.ashby-application-form-container {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.ashby-application-form-question-title {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.ashby-application-form-question-description {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.ashby-application-form-section-header-title {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.ashby-application-form-section-header-description {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.ashby-application-form-submit-button {
+    background-color: var(--colorPrimary900);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--borderRadiusButton);
+    font-weight: 500;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.ashby-application-form-submit-button:hover {
+    background-color: var(--colorPrimary600);
+}
+
+/* ============================================================
+   Autofill / resume upload
+   ============================================================ */
+
+.ashby-application-form-autofill-input-root {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--borderRadiusControl);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.ashby-application-form-autofill-input-title {
+    color: #ffffff;
+}
+
+.ashby-application-form-autofill-input-description {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   Success / failure states
+   ============================================================ */
+
+.ashby-application-form-success-container {
+    color: #ffffff;
+}
+
+.ashby-application-form-failure-container {
+    color: #ffffff;
+}
+
+/* ============================================================
+   Tab slider on job posting
+   ============================================================ */
+
+.ashby-job-posting-right-pane-tab-slider {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ashby-survey-form-container {
+    color: rgba(255, 255, 255, 0.85);
+}
