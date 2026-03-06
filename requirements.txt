@@ -4,5 +4,5 @@ csscompressor==0.9.5
 htmlmin==0.1.12
 jsmin==3.0.1
 Markdown==3.8.1
-pillow==10.3.0
+pillow==12.1.1
 soupsieve==2.5
